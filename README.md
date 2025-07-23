@@ -1,0 +1,1 @@
+# RSC Plugin for Vitest
