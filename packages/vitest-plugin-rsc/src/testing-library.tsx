@@ -2,7 +2,7 @@ import type { Container } from "react-dom/client";
 
 import { renderToReadableStream } from "@vitejs/plugin-rsc/react/rsc";
 
-import type { JSX, Usable } from "react";
+import type { JSX, JSXElementConstructor, ReactNode, Usable } from "react";
 import { importReactClient } from "./utilts";
 
 export { importReactClient };
@@ -33,7 +33,7 @@ declare global {
 // but rendering is sync and controlled by React directly
 async function act(cb: () => unknown) {
   // @ts-expect-error unstable_act is not typed, but exported
-  const _act = React.act || React.unstable_act;
+  const _act = React.act ?? React.unstable_act;
   if (typeof _act !== "function") {
     cb();
   } else {
@@ -50,7 +50,7 @@ export interface RenderResult {
   container: HTMLElement;
   baseElement: HTMLElement;
   unmount: () => void;
-  rerender: (ui: React.ReactNode) => void;
+  rerender: (ui: ReactNode) => void;
   asFragment: () => DocumentFragment;
 }
 
@@ -58,7 +58,7 @@ export interface ComponentRenderOptions {
   rerenderOnServerAction?: boolean;
   container?: HTMLElement;
   baseElement?: HTMLElement;
-  wrapper?: React.JSXElementConstructor<{ children: React.ReactNode }>;
+  wrapper?: JSXElementConstructor<{ children: ReactNode }>;
 }
 
 // Ideally we'd just use a WeakMap where containers are keys and roots are values.
@@ -150,17 +150,19 @@ export interface RenderHookOptions<Props> extends ComponentRenderOptions {
   initialProps?: Props | undefined;
 }
 
-export function cleanup(): void {
-  mountedRootEntries.forEach(({ root, container }) => {
-    act(() => {
+export async function cleanup() {
+  for (const { root, container } of mountedRootEntries) {
+    await act(() => {
       root.unmount();
     });
     if (container.parentNode === document.body) {
       document.body.removeChild(container);
     }
-  });
+  }
   mountedRootEntries.length = 0;
   mountedContainers.clear();
+
+  setServerCallback(defaultServerCallback);
 }
 
 interface ReactRoot {
@@ -168,7 +170,7 @@ interface ReactRoot {
   unmount: () => void;
 }
 
-export function Use({ value }: { value: Usable<JSX.Element> }) {
+function Use({ value }: { value: Usable<JSX.Element> }) {
   return React.use(value);
 }
 
@@ -197,16 +199,16 @@ const config: RenderConfiguration = {
   reactStrictMode: false,
 };
 
-function strictModeIfNeeded(innerElement: React.ReactNode) {
+function strictModeIfNeeded(innerElement: ReactNode) {
   return config.reactStrictMode
     ? React.createElement(React.StrictMode, null, innerElement)
     : innerElement;
 }
 
 function wrapUiIfNeeded(
-  innerElement: React.ReactNode,
-  wrapperComponent?: React.JSXElementConstructor<{
-    children: React.ReactNode;
+  innerElement: ReactNode,
+  wrapperComponent?: JSXElementConstructor<{
+    children: ReactNode;
   }>,
 ) {
   return wrapperComponent
