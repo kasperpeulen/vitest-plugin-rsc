@@ -8,5 +8,5 @@ export function ActionBindClient() {
     () => true,
     () => false,
   );
-  return <div>hello asdfsdf asdf {String(hydrated)}</div>;
+  return <div>{String(hydrated)}</div>;
 }

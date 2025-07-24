@@ -2,7 +2,7 @@ import {
   changeServerCounter,
   getServerCounter,
   resetServerCounter,
-} from './action'
+} from "./action.tsx";
 
 export function ServerCounter() {
   return (
@@ -11,5 +11,5 @@ export function ServerCounter() {
       <button>server-counter: {getServerCounter()}</button>
       <button formAction={resetServerCounter}>server-counter-reset</button>
     </form>
-  )
+  );
 }

@@ -6,8 +6,6 @@ export function TestServerActionBindClientForm(props: {
   action: () => Promise<React.ReactNode>;
 }) {
   const [result, formAction] = React.useActionState(props.action, "[?]");
-
-  console.log(result);
   return (
     <form action={formAction}>
       <button>test-server-action-bind-client</button>

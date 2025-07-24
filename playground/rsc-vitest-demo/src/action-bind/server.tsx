@@ -4,6 +4,16 @@
 import { ActionBindClient } from "./client";
 import { TestServerActionBindClientForm } from "./form";
 
+declare global {
+  var testServerActionBindSimpleState: string;
+  var testServerActionBindActionState: string;
+  var testServerActionBindClientState: number;
+}
+
+globalThis.testServerActionBindSimpleState = "[?]";
+globalThis.testServerActionBindActionState = "[?]";
+globalThis.testServerActionBindClientState = 0;
+
 export function TestServerActionBindReset() {
   return (
     <form
@@ -18,11 +28,6 @@ export function TestServerActionBindReset() {
     </form>
   );
 }
-
-declare global {
-  var testServerActionBindSimpleState: string;
-}
-globalThis.testServerActionBindSimpleState = "[?]";
 
 export function TestServerActionBindSimple() {
   const outerValue = "outerValue";
@@ -44,12 +49,6 @@ export function TestServerActionBindSimple() {
   );
 }
 
-declare global {
-  var testServerActionBindClientState: number;
-}
-
-globalThis.testServerActionBindClientState = 0;
-
 export function TestServerActionBindClient() {
   // client element as server action bound argument
   const client = <ActionBindClient />;
@@ -66,12 +65,6 @@ export function TestServerActionBindClient() {
     />
   );
 }
-
-declare global {
-  var testServerActionBindActionState: string;
-}
-
-globalThis.testServerActionBindActionState = "[?]";
 
 export function TestServerActionBindAction() {
   async function otherAction() {

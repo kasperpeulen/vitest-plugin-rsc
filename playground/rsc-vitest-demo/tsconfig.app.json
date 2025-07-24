@@ -11,7 +11,7 @@
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
-    "moduleDetection": "force",df
+    "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
 
