@@ -22,6 +22,22 @@ const { createFromReadableStream } = await importReactClient<
   typeof import("@vitejs/plugin-rsc/react/browser")
 >("@vitejs/plugin-rsc/react/browser");
 
+declare global {
+  var IS_REACT_ACT_ENVIRONMENT: boolean;
+}
+
+// we call act only when rendering to flush any possible effects
+// usually the async nature of Vitest browser mode ensures consistency,
+// but rendering is sync and controlled by React directly
+async function act(cb: () => unknown) {
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  try {
+    await React.act(cb);
+  } finally {
+    globalThis.IS_REACT_ACT_ENVIRONMENT = false;
+  }
+}
+
 const mountedContainers = new Set<Container>();
 const mountedRootEntries: {
   container: Container;
@@ -61,7 +77,7 @@ export async function renderServer(
   }
 
   const render = (ui: ReactNode) =>
-    React.act(async () =>
+    act(async () =>
       root.render(
         strictModeIfNeeded(
           wrapUiIfNeeded(
@@ -88,7 +104,7 @@ export async function renderServer(
     container,
     baseElement,
     rerender: render,
-    unmount: () => React.act(async () => root.unmount()),
+    unmount: () => act(async () => root.unmount()),
     asFragment: () => {
       return document
         .createRange()
@@ -99,7 +115,7 @@ export async function renderServer(
 
 export async function cleanup() {
   for (const { root, container } of mountedRootEntries) {
-    await React.act(async () => root.unmount());
+    await act(async () => root.unmount());
     if (container.parentNode === document.body) {
       document.body.removeChild(container);
     }

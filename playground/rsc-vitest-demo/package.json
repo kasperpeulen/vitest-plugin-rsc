@@ -40,5 +40,8 @@
     "workerDirectory": [
       "public"
     ]
+  },
+  "prettier": {
+    "printWidth": 100
   }
 }
