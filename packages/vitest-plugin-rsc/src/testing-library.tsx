@@ -1,16 +1,13 @@
-import type { Container } from "react-dom/client";
-
 import { renderToReadableStream } from "@vitejs/plugin-rsc/react/rsc";
-
+import type { Container, Root } from "react-dom/client";
 import type { JSX, JSXElementConstructor, ReactNode, Usable } from "react";
-import { importReactClient } from "./utilts";
-
-export { importReactClient };
-
 import { setRequireModule } from "@vitejs/plugin-rsc/core/browser";
-import { setRequireModule as setRequireServerModule } from "@vitejs/plugin-rsc/core/rsc";
+import {
+  loadServerAction,
+  setRequireModule as setRequireServerModule,
+} from "@vitejs/plugin-rsc/core/rsc";
 import { setServerCallback } from "@vitejs/plugin-rsc/react/browser";
-import { loadServerAction } from "@vitejs/plugin-rsc/core/rsc";
+import { importReactClient } from "./utilts";
 
 const { default: React } = await importReactClient<{
   default: typeof import("react");
@@ -25,95 +22,57 @@ const { createFromReadableStream } = await importReactClient<
   typeof import("@vitejs/plugin-rsc/react/browser")
 >("@vitejs/plugin-rsc/react/browser");
 
-declare global {
-  var IS_REACT_ACT_ENVIRONMENT: boolean;
-}
-// we call act only when rendering to flush any possible effects
-// usually the async nature of Vitest browser mode ensures consistency,
-// but rendering is sync and controlled by React directly
-async function act(cb: () => unknown) {
-  // @ts-expect-error unstable_act is not typed, but exported
-  const _act = React.act ?? React.unstable_act;
-  if (typeof _act !== "function") {
-    cb();
-  } else {
-    globalThis.IS_REACT_ACT_ENVIRONMENT = true;
-    try {
-      await _act(cb);
-    } finally {
-      globalThis.IS_REACT_ACT_ENVIRONMENT = false;
-    }
-  }
-}
-
-export interface RenderResult {
-  container: HTMLElement;
-  baseElement: HTMLElement;
-  unmount: () => void;
-  rerender: (ui: ReactNode) => void;
-  asFragment: () => DocumentFragment;
-}
-
-export interface ComponentRenderOptions {
-  rerenderOnServerAction?: boolean;
-  container?: HTMLElement;
-  baseElement?: HTMLElement;
-  wrapper?: JSXElementConstructor<{ children: ReactNode }>;
-}
-
-// Ideally we'd just use a WeakMap where containers are keys and roots are values.
-// We use two variables so that we can bail out in constant time when we render with a new container (most common use case)
 const mountedContainers = new Set<Container>();
 const mountedRootEntries: {
   container: Container;
-  root: ReturnType<typeof createConcurrentRoot>;
+  root: Root;
 }[] = [];
 
 export async function renderServer(
-  ui: React.ReactNode,
+  ui: ReactNode,
   {
     container,
-    baseElement,
+    baseElement = document.body,
     wrapper: WrapperComponent,
     rerenderOnServerAction = false,
-  }: ComponentRenderOptions = {},
-): Promise<RenderResult> {
-  if (!baseElement) {
-    // default to document.body instead of documentElement to avoid output of potentially-large
-    // head elements (such as JSS style blocks) in debug output
-    baseElement = document.body;
-  }
+  }: {
+    container?: HTMLElement;
+    baseElement?: HTMLElement;
+    wrapper?: JSXElementConstructor<{ children: ReactNode }>;
+    rerenderOnServerAction?: boolean;
+  } = {},
+): Promise<{
+  container: HTMLElement;
+  baseElement: HTMLElement;
+  unmount: () => Promise<void>;
+  rerender: (ui: ReactNode) => Promise<void>;
+  asFragment: () => DocumentFragment;
+}> {
+  container ??= baseElement.appendChild(document.createElement("div"));
 
-  if (!container) {
-    container = baseElement.appendChild(document.createElement("div"));
-  }
-
-  let root: ReactRoot;
+  let root: Root;
 
   if (!mountedContainers.has(container)) {
-    root = createConcurrentRoot(container);
-
+    root = createRoot(container);
     mountedRootEntries.push({ container, root });
-    // we'll add it to the mounted containers regardless of whether it's actually
-    // added to document.body so the cleanup method works regardless of whether
-    // they're passing us a custom container or not.
     mountedContainers.add(container);
   } else {
-    mountedRootEntries.forEach((rootEntry) => {
-      // Else is unreachable since `mountedContainers` has the `container`.
-      // Only reachable if one would accidentally add the container to `mountedContainers` but not the root to `mountedRootEntries`
-      /* istanbul ignore else */
-      if (rootEntry.container === container) {
-        root = rootEntry.root;
-      }
-    });
+    root = mountedRootEntries.find((it) => it.container === container)!.root;
   }
 
-  const render = async (newUi: React.ReactNode) => {
-    await act(() => {
-      root.render(strictModeIfNeeded(wrapUiIfNeeded(newUi, WrapperComponent)));
-    });
-  };
+  const render = (ui: ReactNode) =>
+    React.act(async () =>
+      root.render(
+        strictModeIfNeeded(
+          wrapUiIfNeeded(
+            <Use
+              value={createFromReadableStream(renderToReadableStream(ui))}
+            />,
+            WrapperComponent,
+          ),
+        ),
+      ),
+    );
 
   if (rerenderOnServerAction) {
     setServerCallback(async (id, args) => {
@@ -128,12 +87,8 @@ export async function renderServer(
   return {
     container,
     baseElement,
-    unmount: async () => {
-      await act(() => {
-        root.unmount();
-      });
-    },
     rerender: render,
+    unmount: () => React.act(async () => root.unmount()),
     asFragment: () => {
       return document
         .createRange()
@@ -142,19 +97,9 @@ export async function renderServer(
   };
 }
 
-export interface RenderHookOptions<Props> extends ComponentRenderOptions {
-  /**
-   * The argument passed to the renderHook callback. Can be useful if you plan
-   * to use the rerender utility to change the values passed to your hook.
-   */
-  initialProps?: Props | undefined;
-}
-
 export async function cleanup() {
   for (const { root, container } of mountedRootEntries) {
-    await act(() => {
-      root.unmount();
-    });
+    await React.act(async () => root.unmount());
     if (container.parentNode === document.body) {
       document.body.removeChild(container);
     }
@@ -165,30 +110,8 @@ export async function cleanup() {
   setServerCallback(defaultServerCallback);
 }
 
-interface ReactRoot {
-  render: (element: React.ReactNode) => void;
-  unmount: () => void;
-}
-
 function Use({ value }: { value: Usable<JSX.Element> }) {
   return React.use(value);
-}
-
-function createConcurrentRoot(container: HTMLElement): ReactRoot {
-  const root = createRoot(container);
-
-  return {
-    render(element) {
-      root.render(
-        <Use
-          value={createFromReadableStream(renderToReadableStream(element))}
-        />,
-      );
-    },
-    unmount() {
-      root.unmount();
-    },
-  };
 }
 
 export interface RenderConfiguration {
@@ -221,14 +144,8 @@ export function configure(customConfig: Partial<RenderConfiguration>): void {
 }
 
 export function setupRuntime(): void {
-  setRequireModule({
-    load: (id) => importReactClient(id),
-  });
-
-  setRequireServerModule({
-    load: (id) => import(/* @vite-ignore */ id),
-  });
-
+  setRequireModule({ load: (id) => importReactClient(id) });
+  setRequireServerModule({ load: (id) => import(/* @vite-ignore */ id) });
   setServerCallback(defaultServerCallback);
 }
 
