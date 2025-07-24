@@ -8,7 +8,7 @@ beforeAll(async () => {
   await msw.start({ quiet: true });
 });
 
-beforeEach(() => {
+beforeEach(async () => {
   msw.resetHandlers();
-  cleanup();
+  await cleanup();
 });
