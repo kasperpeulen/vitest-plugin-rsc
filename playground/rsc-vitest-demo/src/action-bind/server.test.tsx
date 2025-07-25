@@ -5,23 +5,22 @@ import {
   TestServerActionBindSimple,
 } from "./server.tsx";
 import { renderServer } from "vitest-plugin-rsc/testing-library";
-import { page } from "@vitest/browser/context";
+import { screen } from "@testing-library/dom";
+import { userEvent } from "@testing-library/user-event";
 
 test("test server action bind simple", async () => {
   await renderServer(<TestServerActionBindSimple />, {
     rerenderOnServerAction: true,
   });
 
-  await expect
-    .element(page.getByTestId("test-server-action-bind-simple"))
-    .toHaveTextContent("[?]");
+  expect(await screen.findByTestId("test-server-action-bind-simple")).toHaveTextContent("[?]");
 
-  await page
-    .getByRole("button", { name: "test-server-action-bind-simple" })
-    .click();
+  await userEvent.click(
+    await screen.findByRole("button", { name: "test-server-action-bind-simple" }),
+  );
 
   await expect
-    .element(page.getByTestId("test-server-action-bind-simple"))
+    .element(await screen.findByTestId("test-server-action-bind-simple"))
     .toHaveTextContent("true");
 });
 
@@ -30,15 +29,14 @@ test("server action bind client", async () => {
     rerenderOnServerAction: true,
   });
 
-  await expect
-    .element(page.getByTestId("test-server-action-bind-client"))
-    .toHaveTextContent("[?]");
-  await page
-    .getByRole("button", { name: "test-server-action-bind-client" })
-    .click();
+  expect(await screen.findByTestId("test-server-action-bind-client")).toHaveTextContent("[?]");
+
+  await userEvent.click(
+    await screen.findByRole("button", { name: "test-server-action-bind-client" }),
+  );
 
   await expect
-    .element(page.getByTestId("test-server-action-bind-client"))
+    .element(await screen.findByTestId("test-server-action-bind-client"))
     .toHaveTextContent("true");
 });
 
@@ -47,15 +45,13 @@ test("test server action bind action", async () => {
     rerenderOnServerAction: true,
   });
 
-  await expect
-    .element(page.getByTestId("test-server-action-bind-action"))
-    .toHaveTextContent("[?]");
+  expect(await screen.findByTestId("test-server-action-bind-action")).toHaveTextContent("[?]");
 
-  await page
-    .getByRole("button", { name: "test-server-action-bind-action" })
-    .click();
+  await userEvent.click(
+    await screen.findByRole("button", { name: "test-server-action-bind-action" }),
+  );
 
   await expect
-    .element(page.getByTestId("test-server-action-bind-action"))
+    .element(await screen.findByTestId("test-server-action-bind-action"))
     .toHaveTextContent("[true,true]");
 });

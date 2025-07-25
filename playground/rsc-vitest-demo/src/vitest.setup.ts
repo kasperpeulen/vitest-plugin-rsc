@@ -1,3 +1,5 @@
+/// <reference types="@vitest/browser/context" />
+
 import { beforeAll, beforeEach } from "vitest";
 import { cleanup } from "vitest-plugin-rsc/testing-library";
 import { msw } from "./test/msw.ts";

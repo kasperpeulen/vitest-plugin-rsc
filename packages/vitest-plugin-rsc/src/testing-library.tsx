@@ -29,10 +29,10 @@ declare global {
 // we call act only when rendering to flush any possible effects
 // usually the async nature of Vitest browser mode ensures consistency,
 // but rendering is sync and controlled by React directly
-async function act(cb: () => unknown) {
+async function act<T>(callback: () => T | Promise<T>) {
   globalThis.IS_REACT_ACT_ENVIRONMENT = true;
   try {
-    await React.act(cb);
+    await React.act(callback);
   } finally {
     globalThis.IS_REACT_ACT_ENVIRONMENT = false;
   }
@@ -76,24 +76,19 @@ export async function renderServer(
     root = mountedRootEntries.find((it) => it.container === container)!.root;
   }
 
-  const render = (ui: ReactNode) =>
-    act(async () =>
-      root.render(
-        strictModeIfNeeded(
-          wrapUiIfNeeded(
-            <Use
-              value={createFromReadableStream(renderToReadableStream(ui))}
-            />,
-            WrapperComponent,
-          ),
-        ),
-      ),
+  const render = async (ui: ReactNode) => {
+    const element = await createFromReadableStream<ReactNode>(
+      renderToReadableStream(ui),
     );
+    return root.render(
+      strictModeIfNeeded(wrapUiIfNeeded(element, WrapperComponent)),
+    );
+  };
 
   if (rerenderOnServerAction) {
     setServerCallback(async (id, args) => {
       const result = await defaultServerCallback(id, args);
-      React.startTransition(() => render(ui));
+      await act(() => React.startTransition(() => render(ui)));
       return result;
     });
   }
@@ -103,7 +98,7 @@ export async function renderServer(
   return {
     container,
     baseElement,
-    rerender: render,
+    rerender: (ui) => act(async () => render(ui)),
     unmount: () => act(async () => root.unmount()),
     asFragment: () => {
       return document
@@ -124,10 +119,6 @@ export async function cleanup() {
   mountedContainers.clear();
 
   setServerCallback(defaultServerCallback);
-}
-
-function Use({ value }: { value: Usable<JSX.Element> }) {
-  return React.use(value);
 }
 
 export interface RenderConfiguration {
