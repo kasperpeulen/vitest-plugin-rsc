@@ -151,10 +151,11 @@ import { createFromReadableStream } from "@vitejs/plugin-rsc/react/browser";
 const jsx = await createFromReadableStream(flightStream);
 ```
 
-### 4. Dedicated \`\` Vite environment
+### 4. Dedicated Vite environment
 
-The browser helpers **must not** resolve using the `react-server` condition, otherwise they will pull the wrong entry point.
-The plugin therefore spins up a second Vite environment called \`\` with its own resolve conditions and transforms.
+The only problem is that this API should not have `react-server` condition set, and the client components should be resolved using different transform. For that reason we create a new vite environment called `react_client` with different resolve conditions and transforms.
+
+We can import the API from the correct environment using:
 
 ```tsx
 import { renderToReadableStream } from "@vitejs/plugin-rsc/react/rsc";
