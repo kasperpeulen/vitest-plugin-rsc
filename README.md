@@ -21,7 +21,6 @@ import vitestPluginRSC from "vitest-plugin-rsc";
 export default defineConfig({
   plugins: [vitestPluginRSC()],
   test: {
-    restoreMocks: true,
     browser: {
       enabled: true,
       provider: "playwright",
