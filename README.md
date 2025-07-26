@@ -4,19 +4,10 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
----
-
-## ✨ Features
-
-- Seamlessly **renders RSCs** inside Vitest
-- Familiar **Testing‑Library API** (`renderServer`, `cleanup`).
-- Supports **server actions** (`"use server"`) and async data fetching.
-
----
 
 ## 📋 Requirements
 
-> **Heads‑up:** The plugin currently **requires Vitest’s browser mode**. Node‑only test runs are not supported _yet_.
+The plugin currently **requires Vitest’s browser mode**.
 
 ## ⚡ Quick start
 
@@ -92,22 +83,32 @@ test("increments likes on click", async () => {
 
 ## 🛠️ How it works
 
-### 1. Serialize the server tree (in the browser)
+### Vitest plugin with 2 environments
 
-We render the RSC tree to a React Flight **ReadableStream** directly in the browser:
+The implementation of `renderServer` funciton simply serializes the server component tree to react flight data with `renderToReadableStream` and then deserializes it back to JSX with `createFromReadableStream`:
 
 ```tsx
 import { renderToReadableStream } from "@vitejs/plugin-rsc/react/rsc";
 
+// 👇 this is imported with a helper, to get the correct export conditions in the module resolution
+const { createFromReadableStream } = await importReactClient(
+  "@vitejs/plugin-rsc/react/browser"
+);
+
+// serialize
 const flightStream = renderToReadableStream(<ServerComponent />);
+// deserialize
+const jsx = await createFromReadableStream(flightStream);
 ```
 
-We can only use this API in the browser by setting the `react-server` [resolve condition](https://nodejs.org/api/packages.html#conditions) in the Vite client environment.
+The vitest plugins spawns 2 environments.
 
-### 2. Rewrite `"use client"` components to server references
+1. The react-server environment is a `client` environment, but has the `react-server` condition applied, and the right server specific transformation to turn client components in references.
+2. A second client environment `react_client` is created that to render the client components marked with `use client`, deserialize the flight stream and to render the JSX to the dom.
 
-During bundling every component annotated with the `"use client"` directive is rewritten into a **server reference** so that the server can later request the client bundle:
+### Transformations
 
+The transformations of the vite plugin will make sure that for a client import in the server tree like:
 ```tsx
 "use client";
 import { useState } from "react";
@@ -123,56 +124,24 @@ export function Like() {
 }
 ```
 
-⬇️ becomes ⬇️
-
+Is transformed to a reference:
 ```tsx
 import { registerClientReference } from "@vitejs/plugin-rsc/vendor/react-server-dom/server";
 
 export const Like = registerClientReference(
-  /* fallback */ () => null,
+  /* fallback */,
   "file:///my-app/components/like.tsx",
   "Like"
 );
 ```
 
-We have now copied some of that of the transformations from the vite-rsc-plugin:
+For now I have copied over the specific transformations I needed from the RSC plugin from @hi-ogawa, as the specific stuff I needed was not included in the exports of the plugin.
 
-https://github.com/vitejs/vite-plugin-react/blob/fa60127be46d48ecd8a8b0d0e7e6751ed11303e2/packages/plugin-rsc/src/plugin.ts#L856-L861
+### Vite Environment API
 
-As they were not easily available outside of the plugin.
-
-### 3. Deserialize the Flight stream on the client
-
-Once the Flight stream is available we hydrate it back to JSX:
+I'm quite unsure about if I use the environment API correctly here. I simply made a new import helper:
 
 ```tsx
-import { createFromReadableStream } from "@vitejs/plugin-rsc/react/browser";
-
-const jsx = await createFromReadableStream(flightStream);
-```
-
-### 4. Dedicated Vite environment
-
-The only problem is that this API should not have `react-server` condition set, and the client components should be resolved using different transform. For that reason we create a new vite environment called `react_client` with different resolve conditions and transforms.
-
-We can import the API from the correct environment using:
-
-```tsx
-import { renderToReadableStream } from "@vitejs/plugin-rsc/react/rsc";
-
-const { createFromReadableStream } = await importReactClient(
-  "@vitejs/plugin-rsc/react/browser"
-);
-
-const flightStream = renderToReadableStream(<ServerComponent />);
-const jsx = await createFromReadableStream(flightStream);
-```
-
-### 5. Runtime helper (`importReactClient`)
-
-`importReactClient` is backed by Vite’s `ModuleRunner`, which evaluates the module in an ESM sandbox and proxies `invoke` calls back to the `react_client` environment:
-
-```ts
 import { ESModulesEvaluator, ModuleRunner } from "vite/module-runner";
 
 const runner = new ModuleRunner(
@@ -180,42 +149,121 @@ const runner = new ModuleRunner(
     sourcemapInterceptor: false,
     transport: {
       invoke: async (payload) => {
-        const res = await fetch(
+        const response = await fetch(
           "/@vite/invoke-react-client?" +
-            new URLSearchParams({ data: JSON.stringify(payload) })
+            new URLSearchParams({
+              data: JSON.stringify(payload),
+            }),
         );
-        return res.json();
+        return response.json();
       },
     },
     hmr: false,
   },
-  new ESModulesEvaluator()
+  new ESModulesEvaluator(),
 );
 
 export const importReactClient = runner.import.bind(runner);
 ```
 
-#### Server middleware
+And a server handler to resolve the import with the right conditions and transformations:
 
-```ts
-export function rscVitestMiddleware() {
-  return {
-    configureServer(server) {
-      server.middlewares.use(async (req, res, next) => {
-        const url = new URL(req.url ?? "/", "http://localhost");
-        if (url.pathname === "/@vite/invoke-react-client") {
-          const payload = JSON.parse(url.searchParams.get("data")!);
-          const result = await server.environments["react_client"]!.hot.handleInvoke(
-            payload
-          );
-          res.end(JSON.stringify(result));
-          return;
-        }
-        next();
-      });
-    },
-  };
-}
+```tsx
+const plugin = {
+  configureServer(server) {
+    server.middlewares.use(async (req, res, next) => {
+      const url = new URL(req.url ?? "/", "https://any.local");
+      if (url.pathname === "/@vite/invoke-react-client") {
+        const payload = JSON.parse(url.searchParams.get("data")!);
+        const result =
+          await server.environments["react_client"]!.hot.handleInvoke(payload);
+        res.end(JSON.stringify(result));
+        return;
+      }
+      next();
+    });
+  },
+};
 ```
 
-That’s the core loop: **serialize → deserialize** — all inside Vitest’s browser context. 🚀
+However, hot module reload doesn't work in this way, and the plugin also seem to mess up browser module mocking somehow.
+I hope to get some guidance from the vite team here.
+
+### Nextjs example
+
+For example, I tried to make a nextjs example with module mocking:
+
+```tsx
+import { describe, expect, test, vi } from "vitest";
+import { renderServer } from "vitest-plugin-rsc/testing-library";
+import { screen } from "@testing-library/dom";
+import AuthButton from "./auth-button.tsx";
+import { RequestCookiesAdapter } from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import { RequestCookies } from "next/dist/compiled/@edge-runtime/cookies";
+import { getUser } from "../lib/session.ts";
+
+vi.mock(import("../lib/session"), { spy: true });
+
+vi.mock("next/headers", () => ({
+  cookies: async () => RequestCookiesAdapter.seal(new RequestCookies(new Headers())),
+}));
+
+test("renders add button when logged in", async () => {
+  vi.mocked(getUser).mockReturnValue("some-user");
+
+  await renderServer(<AuthButton noteId={null}>Add</AuthButton>);
+
+  expect(await screen.findByRole("menuitem", { name: /Add/ })).toBeVisible();
+});
+```
+
+This works correctly the first run, but the mocks are not applied anymore in a second test run.
+
+Especially for nextjs support, getting module mocking working seems essential to mock apis like:
+`cookies`, `headers`,  `redirect` and `revalidatePath`
+
+### Direction forward
+
+Although there are some rough edges, I think this is the best way forward for unit-testing/component testing RSC's.
+Running both the server and client in the same runtime, might seem weird at first, I think it is the only way to get a unit test like experience.
+In a unit test, you want to be able to run any function or component in the unit test, not only specific routes.
+You also want to easily mock globals, time, http, modules, fs etc.
+
+For example, in this approach, you can mock the date in the backend and frontend with a simple line before your test:
+
+```tsx
+test('allows purchases within business hours', () => {
+  // set hour within business hours
+  const date = new Date(2000, 1, 1, 13)
+  vi.setSystemTime(date)
+  await renderServer(<PurchaseItem />);
+})
+```
+
+Or mock out http endpoints (both in the backend and client):
+
+```tsx
+test("users mock", async () => {
+  msw.use(http.get(api("/users"), () => Response.json([{ id: 5, name: "some user" }])));
+
+  await renderServer(<Users />);
+});
+```
+
+#### Using vitest browser mode
+At this moment, I only got it working with vitest browser mode, not yet with jsdom.
+It might seem useful to run it in jsdom, as RSC often run in node as well.
+Personally, I think that is very useful to get visual feedback of your react components in `vitest` or `storybook`.
+
+Also it is easier to mock our node correctly, than mock out the browser correctly.
+
+Especially, because in modern code people often use web based API's in the RSC components such as:
+`fetch`, `Headers`, `Request`, `Response`, `crypto`, `TextEncoder`, `TextDecoder`, `URL`, `Blob`, `File`,  `FormData`, `atob`, `btoa`, `ReadableStream`,
+
+The filesystem is easily mocked out with an in-memory file system:
+https://vitest.dev/guide/mocking.html#file-system
+Which is in general a good practice; to isolate your unit tests from IO.
+
+And even for databases there are many browser friendly in-memory implementations:
+https://github.com/morintd/prismock
+https://github.com/oguimbal/pg-mem
