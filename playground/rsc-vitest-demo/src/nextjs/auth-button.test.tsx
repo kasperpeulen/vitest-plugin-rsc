@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from "vitest";
+import { expect, test, vi } from "vitest";
 import { renderServer } from "vitest-plugin-rsc/testing-library";
 
 import { screen } from "@testing-library/dom";
@@ -14,30 +14,26 @@ vi.mock("next/headers", () => ({
   cookies: async () => RequestCookiesAdapter.seal(new RequestCookies(new Headers())),
 }));
 
-// mock somehow is not always applied
-// for example when rerunning tests
-describe.skip("next tests", () => {
-  test("renders login button when logged out", async () => {
-    await renderServer(<AuthButton noteId={null}>Add</AuthButton>);
+test("renders login button when logged out", async () => {
+  await renderServer(<AuthButton noteId={null}>Add</AuthButton>);
 
-    expect(await screen.findByRole("menuitem", { name: "Login to Add" })).toBeVisible();
-  });
+  expect(await screen.findByRole("menuitem", { name: "Login to Add" })).toBeVisible();
+});
 
-  test("renders add button when logged in", async () => {
-    vi.mocked(getUser).mockReturnValue("some-user");
+test("renders add button when logged in", async () => {
+  vi.mocked(getUser).mockReturnValue("some-user");
 
-    await renderServer(<AuthButton noteId={null}>Add</AuthButton>);
+  await renderServer(<AuthButton noteId={null}>Add</AuthButton>);
 
-    expect(await screen.findByRole("menuitem", { name: /Add/ })).toBeVisible();
-  });
+  expect(await screen.findByRole("menuitem", { name: /Add/ })).toBeVisible();
+});
 
-  test("renders outlined edit button for a specific note", async () => {
-    vi.mocked(getUser).mockReturnValue("some-user");
+test("renders outlined edit button for a specific note", async () => {
+  vi.mocked(getUser).mockReturnValue("some-user");
 
-    await renderServer(<AuthButton noteId="1">Edit</AuthButton>);
+  await renderServer(<AuthButton noteId="1">Edit</AuthButton>);
 
-    const menuItem = await screen.findByRole("menuitem", { name: /Edit/ });
-    expect(menuItem).toBeVisible();
-    expect(menuItem).toHaveClass("edit-button--outline");
-  });
+  const menuItem = await screen.findByRole("menuitem", { name: /Edit/ });
+  expect(menuItem).toBeVisible();
+  expect(menuItem).toHaveClass("edit-button--outline");
 });

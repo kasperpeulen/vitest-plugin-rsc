@@ -7,9 +7,8 @@ export default defineConfig({
     restoreMocks: true,
     browser: {
       enabled: true,
-      provider: "playwright",
+      provider: "preview",
       screenshotFailures: false,
-      // https://vitest.dev/guide/browser/playwright
       instances: [{ browser: "chromium" }],
     },
     setupFiles: ["./src/vitest.setup.ts"],
