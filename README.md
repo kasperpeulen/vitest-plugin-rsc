@@ -84,7 +84,7 @@ test("increments likes on click", async () => {
 
 ### Vitest plugin with 2 environments
 
-The implementation of `renderServer` funciton simply serializes the server component tree to react flight data with `renderToReadableStream` and then deserializes it back to JSX with `createFromReadableStream`:
+The implementation of `renderServer` function simply serializes the server component tree to react flight data with `renderToReadableStream` and then deserializes it back to JSX with `createFromReadableStream`:
 
 ```tsx
 import { renderToReadableStream } from "@vitejs/plugin-rsc/react/rsc";
