@@ -19,6 +19,9 @@ export default function vitestPluginRSC(): Plugin[] {
       environment: {
         server: ["client"],
       },
+      // TODO: this causes
+      // > Error: Currently React only supports one RSC renderer at a time.
+      enableActionEncryption: false,
     }),
     ...vitePluginDefineEncryptionKey(),
     {

@@ -5,7 +5,8 @@ declare global {
 }
 
 // TODO: Dynamically importing the action somehow gets duplicated module state in vite
-globalThis.serverCounter = 0;
+// globalThis.serverCounter = 0;
+let serverCounter = 0;
 
 export async function getServerCounter(): Promise<number> {
   return serverCounter;
