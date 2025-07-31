@@ -61,8 +61,11 @@ export default function vitestPluginRSC(): Plugin[] {
                   "react-dom/client",
                   "react/jsx-runtime",
                   "react/jsx-dev-runtime",
-                  "@vitejs/plugin-rsc/vendor/react-server-dom/server.browser",
-                  "@vitejs/plugin-rsc/vendor/react-server-dom/client.browser",
+                  // TODO: browser build is missing features and breaks action bind
+                  "@vitejs/plugin-rsc/vendor/react-server-dom/server.edge",
+                  "@vitejs/plugin-rsc/vendor/react-server-dom/client.edge",
+                  // "@vitejs/plugin-rsc/vendor/react-server-dom/server.browser",
+                  // "@vitejs/plugin-rsc/vendor/react-server-dom/client.browser",
                 ],
                 exclude: ["vite", "vitest-plugin-rsc", "@vitejs/plugin-rsc"]
               },
@@ -89,14 +92,14 @@ export default function vitestPluginRSC(): Plugin[] {
               },
             },
           },
-          resolve: {
-            alias: {
-              "@vitejs/plugin-rsc/vendor/react-server-dom/server.edge":
-                "@vitejs/plugin-rsc/vendor/react-server-dom/server.browser",
-              "@vitejs/plugin-rsc/vendor/react-server-dom/client.edge":
-                "@vitejs/plugin-rsc/vendor/react-server-dom/client.browser",
-            },
-          },
+          // resolve: {
+          //   alias: {
+          //     "@vitejs/plugin-rsc/vendor/react-server-dom/server.edge":
+          //       "@vitejs/plugin-rsc/vendor/react-server-dom/server.browser",
+          //     "@vitejs/plugin-rsc/vendor/react-server-dom/client.edge":
+          //       "@vitejs/plugin-rsc/vendor/react-server-dom/client.browser",
+          //   },
+          // },
         };
       },
     },
