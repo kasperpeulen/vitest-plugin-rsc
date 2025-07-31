@@ -1,9 +1,26 @@
 import { type Plugin } from "vite";
-import { vitePluginRsc } from "./vite-plugin/plugin";
+// import { vitePluginRsc } from "./vite-plugin/plugin";
+import {
+  vitePluginRscCore,
+  vitePluginUseClient,
+  vitePluginUseServer,
+  vitePluginDefineEncryptionKey,
+} from "@vitejs/plugin-rsc/plugin";
 
 export default function vitestPluginRSC(): Plugin[] {
   return [
-    ...vitePluginRsc(),
+    ...vitePluginRscCore(),
+    ...vitePluginUseClient({
+      environment: {
+        server: ["client"],
+      },
+    }),
+    ...vitePluginUseServer({
+      environment: {
+        server: ["client"],
+      },
+    }),
+    ...vitePluginDefineEncryptionKey(),
     {
       name: "rsc:run-in-browser",
       configureServer(server) {
