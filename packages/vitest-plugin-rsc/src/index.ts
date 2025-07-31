@@ -19,11 +19,12 @@ export default function vitestPluginRSC(): Plugin[] {
       environment: {
         server: ["client"],
       },
-      // TODO: this causes
-      // > Error: Currently React only supports one RSC renderer at a time.
-      enableActionEncryption: false,
     }),
-    ...vitePluginDefineEncryptionKey(),
+    ...vitePluginDefineEncryptionKey({
+      environment: {
+        server: ["client"],
+      },
+    }),
     {
       name: "rsc:run-in-browser",
       configureServer(server) {
@@ -61,10 +62,9 @@ export default function vitestPluginRSC(): Plugin[] {
                   "react/jsx-runtime",
                   "react/jsx-dev-runtime",
                   "@vitejs/plugin-rsc/vendor/react-server-dom/server.browser",
-                  "@vitejs/plugin-rsc/vendor/react-server-dom/server.edge",
-                  "@vitejs/plugin-rsc/vendor/react-server-dom/client.edge",
                   "@vitejs/plugin-rsc/vendor/react-server-dom/client.browser",
                 ],
+                exclude: ["vite", "vitest-plugin-rsc", "@vitejs/plugin-rsc"]
               },
             },
             react_client: {
@@ -82,7 +82,7 @@ export default function vitestPluginRSC(): Plugin[] {
                   "react/jsx-dev-runtime",
                   "@vitejs/plugin-rsc/vendor/react-server-dom/client.browser",
                 ],
-                exclude: ["fsevents"],
+                exclude: ["vitest-plugin-rsc", "@vitejs/plugin-rsc"],
                 esbuildOptions: {
                   platform: "browser",
                 },

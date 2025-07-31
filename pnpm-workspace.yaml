@@ -1,3 +1,5 @@
 packages:
   - 'packages/*'
   - 'playground/**'
+overrides: 
+  "@vitejs/plugin-rsc": "https://pkg.pr.new/@vitejs/plugin-rsc@07cc571"
