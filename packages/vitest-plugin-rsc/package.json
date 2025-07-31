@@ -25,7 +25,7 @@
     "prepack": "tsdown"
   },
   "dependencies": {
-    "@vitejs/plugin-rsc": "https://pkg.pr.new/@vitejs/plugin-rsc@795f9fd",
+    "@vitejs/plugin-rsc": "https://pkg.pr.new/@vitejs/plugin-rsc@bb39264",
     "@hiogawa/utils": "^1.7.0",
     "estree-walker": "^3.0.3",
     "magic-string": "^0.30.17",

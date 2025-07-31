@@ -1,7 +1,7 @@
 import { type Plugin } from "vite";
 // import { vitePluginRsc } from "./vite-plugin/plugin";
 import {
-  vitePluginRscCore,
+  vitePluginRscMinimal,
   vitePluginUseClient,
   vitePluginUseServer,
   vitePluginDefineEncryptionKey,
@@ -9,7 +9,7 @@ import {
 
 export default function vitestPluginRSC(): Plugin[] {
   return [
-    ...vitePluginRscCore(),
+    ...vitePluginRscMinimal(),
     ...vitePluginUseClient({
       environment: {
         server: ["client"],
