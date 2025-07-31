@@ -58,14 +58,21 @@ export async function createTestingLibraryClientRoot(options: {
   const reactRoot = ReactDOMClient.createRoot(options.container);
   reactRoot.render(browserRoot);
 
+  async function rerender() {
+    const payload = await ReactClient.createFromReadableStream<RscPayload>(
+      await options.fetchRsc(),
+    );
+    setPayload(payload);
+  }
+
   function unmount() {
     reactRoot.unmount();
   }
 
   return {
     reactRoot,
-    unmount: async () => unmount(),
-    // unmount: () => act(() => unmount()),
+    rerender: () => act(() => rerender()),
+    unmount: () => act(() => unmount()),
   };
 }
 
@@ -73,14 +80,17 @@ declare global {
   var IS_REACT_ACT_ENVIRONMENT: boolean;
 }
 
-// async function act<T>(callback: () => T | Promise<T>) {
-//   globalThis.IS_REACT_ACT_ENVIRONMENT = true;
-//   try {
-//     await React.act(callback);
-//   } finally {
-//     globalThis.IS_REACT_ACT_ENVIRONMENT = false;
-//   }
-// }
+// we call act only when rendering to flush any possible effects
+// usually the async nature of Vitest browser mode ensures consistency,
+// but rendering is sync and controlled by React directly
+async function act<T>(callback: () => T | Promise<T>) {
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  try {
+    await React.act(callback);
+  } finally {
+    globalThis.IS_REACT_ACT_ENVIRONMENT = false;
+  }
+}
 
 export function initialize() {
   ReactClient.setRequireModule({
