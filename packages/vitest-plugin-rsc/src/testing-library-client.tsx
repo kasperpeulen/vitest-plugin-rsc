@@ -14,12 +14,12 @@ export type TestingLibraryClientRoot = Awaited<
 
 export type FetchRsc = (actionRequest?: {
   id: string;
-  args: unknown[];
+  reply: string | FormData;
 }) => Promise<ReadableStream<Uint8Array>>;
 
 export async function createTestingLibraryClientRoot(options: {
   container: HTMLElement;
-  config: RenderConfiguration,
+  config: RenderConfiguration;
   fetchRsc: FetchRsc;
 }) {
   let setPayload: (v: RscPayload) => void;
@@ -39,10 +39,10 @@ export async function createTestingLibraryClientRoot(options: {
   }
 
   ReactClient.setServerCallback(async (id, args) => {
-    // TODO: encodeReply with temporaryReferences
     const temporaryReferences = ReactClient.createTemporaryReferenceSet();
+    const reply = await ReactClient.encodeReply(args, { temporaryReferences });
     const payload = await ReactClient.createFromReadableStream<RscPayload>(
-      await options.fetchRsc({ id, args }),
+      await options.fetchRsc({ id, reply }),
       { temporaryReferences },
     );
     setPayload(payload);

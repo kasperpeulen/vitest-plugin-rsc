@@ -81,23 +81,32 @@ export async function renderServer(
 
   if (!mountedContainers.has(container)) {
     const fetchRsc: FetchRsc = async (actionRequest) => {
-      // TODO: decodeReply with temporaryReferences
-      let returnValue: unknown;
+      let returnValue: unknown | undefined;
+      let temporaryReferences: unknown | undefined;
       if (actionRequest) {
-        const { id, args } = actionRequest;
+        const { id, reply } = actionRequest;
+        temporaryReferences = ReactServer.createTemporaryReferenceSet();
+        const args = await ReactServer.decodeReply(reply, {
+          temporaryReferences,
+        });
         const action = await ReactServer.loadServerAction(id);
         returnValue = await action.apply(null, args);
       }
-      const stream = ReactServer.renderToReadableStream<RscPayload>({
+      const rscPayload: RscPayload = {
         root: ui,
         returnValue,
-      });
+      };
+      const rscOptions = { temporaryReferences };
+      const stream = ReactServer.renderToReadableStream<RscPayload>(
+        rscPayload,
+        rscOptions,
+      );
       return stream;
-    }
+    };
     root = await client.createTestingLibraryClientRoot({
       container,
       config,
-      fetchRsc
+      fetchRsc,
     });
     mountedRootEntries.push({ container, root });
     mountedContainers.add(container);
