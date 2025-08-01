@@ -18,13 +18,14 @@ globalThis.onNavigate = fn<(url: URL) => void>()
 
 export const NextRouter = ({
   children,
-  route = '/',
-  url = '/'
+  url = '/',
+  route
 }: {
   children: ReactNode
   route?: string
   url?: string
 }) => {
+  route ??= url
   const [newUrl, setNewUrl] = useState<URL>()
   const location = new URL(url, 'http://localhost')
 
