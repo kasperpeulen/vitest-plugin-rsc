@@ -2,4 +2,4 @@ packages:
   - 'packages/*'
   - 'playground/**'
 overrides: 
-  "@vitejs/plugin-rsc": "https://pkg.pr.new/@vitejs/plugin-rsc@07cc571"
+  "@vitejs/plugin-rsc": "https://pkg.pr.new/@vitejs/plugin-rsc@86fc3de"

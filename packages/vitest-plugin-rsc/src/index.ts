@@ -1,27 +1,12 @@
 import { type Plugin } from "vite";
-import {
-  vitePluginRscMinimal,
-  vitePluginUseClient,
-  vitePluginUseServer,
-  vitePluginDefineEncryptionKey,
-} from "@vitejs/plugin-rsc/plugin";
+import { vitePluginRscMinimal } from "@vitejs/plugin-rsc/plugin";
 
 export default function vitestPluginRSC(): Plugin[] {
   return [
-    ...vitePluginRscMinimal(),
-    ...vitePluginUseClient({
+    ...vitePluginRscMinimal({
       environment: {
-        server: ["client"],
-      },
-    }),
-    ...vitePluginUseServer({
-      environment: {
-        server: ["client"],
-      },
-    }),
-    ...vitePluginDefineEncryptionKey({
-      environment: {
-        server: ["client"],
+        browser: "react_client",
+        rsc: "client",
       },
     }),
     {
@@ -66,7 +51,7 @@ export default function vitestPluginRSC(): Plugin[] {
                   // "@vitejs/plugin-rsc/vendor/react-server-dom/server.browser",
                   // "@vitejs/plugin-rsc/vendor/react-server-dom/client.browser",
                 ],
-                exclude: ["vite", "vitest-plugin-rsc", "@vitejs/plugin-rsc"]
+                exclude: ["vite", "vitest-plugin-rsc", "@vitejs/plugin-rsc"],
               },
             },
             react_client: {
