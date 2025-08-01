@@ -1,9 +1,5 @@
 "use server";
 
-declare global {
-  var serverCounter: number;
-}
-
 let serverCounter = 0;
 
 export async function getServerCounter(): Promise<number> {
