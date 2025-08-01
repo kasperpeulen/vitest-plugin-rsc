@@ -1,5 +1,4 @@
 import { type Plugin } from "vite";
-// import { vitePluginRsc } from "./vite-plugin/plugin";
 import {
   vitePluginRscMinimal,
   vitePluginUseClient,

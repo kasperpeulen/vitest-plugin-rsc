@@ -70,7 +70,6 @@ export async function createTestingLibraryClientRoot(options: {
   }
 
   return {
-    reactRoot,
     rerender: () => act(() => rerender()),
     unmount: () => act(() => unmount()),
   };
