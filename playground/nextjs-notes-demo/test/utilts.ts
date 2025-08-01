@@ -3,13 +3,8 @@ import { expect } from 'vitest'
 
 export async function expectRedirect(pathname: string) {
   await waitFor(() =>
-    expect(globalThis.dispatch).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: 'navigate',
-        url: expect.objectContaining({
-          pathname: '/note/1'
-        })
-      })
+    expect(globalThis.onNavigate).toHaveBeenCalledWith(
+      expect.objectContaining({ pathname })
     )
   )
 }

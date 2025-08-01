@@ -21,12 +21,10 @@ test.only('notes can be saved', async ({ userEvent }) => {
     </NextRouter>,
     {
       rootOptions: {
-        // onCaughtError: (error) => {
-        //   if (isNextRouterError(error)) {
-        //     return
-        //   }
-        //   return
-        // }
+        onCaughtError: (error) => {
+          if (isNextRouterError(error)) return
+          console.log(error)
+        }
       }
     }
   )
@@ -35,11 +33,11 @@ test.only('notes can be saved', async ({ userEvent }) => {
 
   const id = Date.now().toString()
   await expectRedirect(`/note/${id}`)
-  // expect(setNote).toHaveBeenLastCalledWith<Parameters<typeof setNote>>(id, {
-  //   id,
-  //   title,
-  //   body,
-  //   created_by,
-  //   updated_at: Date.now()
-  // })
+  expect(setNote).toHaveBeenLastCalledWith<Parameters<typeof setNote>>(id, {
+    id,
+    title,
+    body,
+    created_by,
+    updated_at: Date.now()
+  })
 })

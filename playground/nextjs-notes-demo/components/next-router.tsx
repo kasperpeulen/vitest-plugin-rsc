@@ -7,16 +7,14 @@ import {
   type FlightDataPath,
   type FlightRouterState
 } from 'next/dist/server/app-render/types'
-import { type ReactNode } from 'react'
+import { type ReactNode, useState } from 'react'
 import { buildFlightRouterState } from './tree'
-import { fn } from '@vitest/spy'
-import type { ReducerActions } from 'next/dist/client/components/router-reducer/router-reducer-types'
+import { fn, type Mock } from '@vitest/spy'
 
-const _dispatch = fn<(payload: ReducerActions) => void>()
 declare global {
-  var dispatch: typeof _dispatch
+  var onNavigate: Mock<(url: URL) => void>
 }
-globalThis.dispatch = _dispatch
+globalThis.onNavigate = fn<(url: URL) => void>()
 
 export const NextRouter = ({
   children,
@@ -27,6 +25,7 @@ export const NextRouter = ({
   route?: string
   url?: string
 }) => {
+  const [newUrl, setNewUrl] = useState<URL>()
   const location = new URL(url, 'http://localhost')
 
   const actionQueue: AppRouterActionQueue = {
@@ -50,17 +49,36 @@ export const NextRouter = ({
       prerendered: false
     }),
     dispatch: (payload, setState) => {
-      globalThis.dispatch(payload)
+      if (payload.type === 'navigate') {
+        setNewUrl(payload.url)
+        globalThis.onNavigate(payload.url)
+      }
     },
     action: async (state, action) => {
-      throw new Error('action called')
-      return state
+      throw new Error('action not implemented')
     },
     pending: null,
     last: null,
     onRouterTransitionStart: null
   }
-
+  if (newUrl) {
+    return (
+      <div className="redirect-info">
+        <h3>Navigation</h3>
+        <div className="url-details">
+          <p>
+            <strong>Pathname:</strong> {newUrl.pathname}
+          </p>
+          <p>
+            <strong>Search:</strong> {newUrl.search}
+          </p>
+          <p>
+            <strong>Hash:</strong> {newUrl.hash}
+          </p>
+        </div>
+      </div>
+    )
+  }
   return <AppRouter actionQueue={actionQueue}></AppRouter>
 }
 

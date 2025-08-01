@@ -18,6 +18,7 @@ import {
   ReadonlyURLSearchParams,
   unstable_rethrow
 } from 'next/dist/client/components/navigation.react-server'
+import MockDate from 'mockdate'
 
 vi.mock(import('../libs/session'), { spy: true })
 vi.mock(import('../libs/notes'), () => ({
@@ -51,9 +52,8 @@ beforeEach(async (context) => {
   // msw.resetHandlers()
   await cleanup()
 
-  vi.useFakeTimers()
-  vi.setSystemTime(new Date(2012, 3, 4, 5, 6, 7))
-  context.userEvent = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+  MockDate.set(new Date(2012, 3, 4, 5, 6, 7))
+  context.userEvent = userEvent.setup()
 })
 
 declare module 'vitest' {

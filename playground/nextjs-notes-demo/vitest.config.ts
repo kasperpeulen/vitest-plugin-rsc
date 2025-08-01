@@ -6,6 +6,7 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 export default defineConfig({
   plugins: [tsconfigPaths(), react(), vitestPluginRSC()],
   test: {
+    testTimeout: 3000,
     restoreMocks: true,
     browser: {
       enabled: true,
