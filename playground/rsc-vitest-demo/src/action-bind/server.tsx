@@ -4,15 +4,9 @@
 import { ActionBindClient } from "./client";
 import { TestServerActionBindClientForm } from "./form";
 
-declare global {
-  var testServerActionBindSimpleState: string;
-  var testServerActionBindActionState: string;
-  var testServerActionBindClientState: number;
-}
-
-globalThis.testServerActionBindSimpleState = "[?]";
-globalThis.testServerActionBindActionState = "[?]";
-globalThis.testServerActionBindClientState = 0;
+let testServerActionBindSimpleState = "[?]";
+let testServerActionBindActionState = "[?]";
+let testServerActionBindClientState = 0;
 
 export function TestServerActionBindReset() {
   return (
