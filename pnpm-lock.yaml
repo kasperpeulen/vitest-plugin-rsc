@@ -4,9 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  '@vitejs/plugin-rsc': https://pkg.pr.new/@vitejs/plugin-rsc@86fc3de
-
 importers:
 
   .:
@@ -48,8 +45,8 @@ importers:
         specifier: ^1.7.0
         version: 1.7.0
       '@vitejs/plugin-rsc':
-        specifier: https://pkg.pr.new/@vitejs/plugin-rsc@86fc3de
-        version: https://pkg.pr.new/@vitejs/plugin-rsc@86fc3de(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vite@7.0.5(@types/node@22.16.5)(jiti@2.4.2)(tsx@4.20.3))
+        specifier: 0.4.16
+        version: 0.4.16(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vite@7.0.5(@types/node@22.16.5)(jiti@2.4.2)(tsx@4.20.3))
       estree-walker:
         specifier: ^3.0.3
         version: 3.0.3
@@ -119,8 +116,8 @@ importers:
         specifier: ^4.6.0
         version: 4.7.0(vite@7.0.5(@types/node@22.16.5)(jiti@2.4.2)(tsx@4.20.3))
       '@vitejs/plugin-rsc':
-        specifier: https://pkg.pr.new/@vitejs/plugin-rsc@86fc3de
-        version: https://pkg.pr.new/@vitejs/plugin-rsc@86fc3de(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vite@7.0.5(@types/node@22.16.5)(jiti@2.4.2)(tsx@4.20.3))
+        specifier: 0.4.16
+        version: 0.4.16(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vite@7.0.5(@types/node@22.16.5)(jiti@2.4.2)(tsx@4.20.3))
       '@vitest/browser':
         specifier: ^3.2.4
         version: 3.2.4(msw@2.10.4(@types/node@22.16.5)(typescript@5.8.3))(playwright@1.54.1)(vite@7.0.5(@types/node@22.16.5)(jiti@2.4.2)(tsx@4.20.3))(vitest@3.2.4)
@@ -1085,9 +1082,8 @@ packages:
     peerDependencies:
       vite: ^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
 
-  '@vitejs/plugin-rsc@https://pkg.pr.new/@vitejs/plugin-rsc@86fc3de':
-    resolution: {tarball: https://pkg.pr.new/@vitejs/plugin-rsc@86fc3de}
-    version: 0.4.15
+  '@vitejs/plugin-rsc@0.4.16':
+    resolution: {integrity: sha512-QIURKHMpMiwWPi78/9nBzW6wN0PKt3rqNMsLw7NRz5ZuayQVq6hZlH0fP018m6/giFDDHKokb8Hy+bvHrtdrqw==}
     peerDependencies:
       react: '*'
       react-dom: '*'
@@ -3178,7 +3174,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-rsc@https://pkg.pr.new/@vitejs/plugin-rsc@86fc3de(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vite@7.0.5(@types/node@22.16.5)(jiti@2.4.2)(tsx@4.20.3))':
+  '@vitejs/plugin-rsc@0.4.16(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vite@7.0.5(@types/node@22.16.5)(jiti@2.4.2)(tsx@4.20.3))':
     dependencies:
       '@mjackson/node-fetch-server': 0.7.0
       es-module-lexer: 1.7.0
