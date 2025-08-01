@@ -56,12 +56,12 @@ export async function renderServer(
         const action = await ReactServer.loadServerAction(id);
         returnValue = await action.apply(null, args);
       }
-      let root = ui;
+      let serverRoot = ui;
       if (WrapperComponent) {
-        root = <WrapperComponent>{ui}</WrapperComponent>;
+        serverRoot = <WrapperComponent>{ui}</WrapperComponent>;
       }
       const rscPayload: RscPayload = {
-        root,
+        root: serverRoot,
         returnValue,
       };
       const rscOptions = { temporaryReferences };
