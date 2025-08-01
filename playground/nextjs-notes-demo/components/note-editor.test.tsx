@@ -8,7 +8,7 @@ import { expectNavigation } from '../test/utilts'
 import { NextRouter } from './next-router'
 import NoteEditor from './note-editor'
 
-test('notes can be saved', async () => {
+test('note editor saves note and redirects after submitting note', async () => {
   const created_by = 'kasper'
   vi.mocked(getUser).mockReturnValue(created_by)
   const title = 'This is a title'
