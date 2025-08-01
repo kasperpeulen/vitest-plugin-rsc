@@ -1,5 +1,5 @@
 import { renderToReadableStream } from "@vitejs/plugin-rsc/react/rsc";
-import type { Container, Root } from "react-dom/client";
+import type { Container, Root, RootOptions } from "react-dom/client";
 import type { JSX, JSXElementConstructor, ReactNode, Usable } from "react";
 import { setRequireModule } from "@vitejs/plugin-rsc/core/browser";
 import {
@@ -8,6 +8,8 @@ import {
 } from "@vitejs/plugin-rsc/core/rsc";
 import { setServerCallback } from "@vitejs/plugin-rsc/react/browser";
 import { importReactClient } from "./utilts";
+
+export { importReactClient };
 
 const { default: React } = await importReactClient<{
   default: typeof import("react");
@@ -51,11 +53,13 @@ export async function renderServer(
     baseElement = document.body,
     wrapper: WrapperComponent,
     rerenderOnServerAction = false,
+    rootOptions,
   }: {
     container?: HTMLElement;
     baseElement?: HTMLElement;
     wrapper?: JSXElementConstructor<{ children: ReactNode }>;
     rerenderOnServerAction?: boolean;
+    rootOptions?: RootOptions;
   } = {},
 ): Promise<{
   container: HTMLElement;
@@ -69,7 +73,7 @@ export async function renderServer(
   let root: Root;
 
   if (!mountedContainers.has(container)) {
-    root = createRoot(container);
+    root = createRoot(container, rootOptions);
     mountedRootEntries.push({ container, root });
     mountedContainers.add(container);
   } else {

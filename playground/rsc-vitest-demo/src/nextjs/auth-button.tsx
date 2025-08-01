@@ -16,7 +16,6 @@ export default async function AuthButton({
   const user = getUser(userCookie?.value);
   const isDraft = noteId == null;
 
-  console.log(user);
   if (user) {
     return (
       // Use hard link
