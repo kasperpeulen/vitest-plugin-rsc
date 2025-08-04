@@ -36,10 +36,10 @@ export default defineConfig({
 ```ts
 // src/vitest.setup.ts
 import { beforeAll, beforeEach } from "vitest";
-import { cleanup, setupRuntime } from "vitest-plugin-rsc/testing-library";
+import { cleanup, initialize } from "vitest-plugin-rsc/testing-library";
 
 beforeAll(() => {
-  setupRuntime(); // ⬅️ spins up the RSC runtime
+  initialize(); // ⬅️ spins up the RSC runtime
 });
 
 beforeEach(async () => {
@@ -138,7 +138,7 @@ For now I have copied over the specific transformations I needed from the RSC pl
 
 ### Vite Environment API
 
-I'm quite unsure about if I use the environment API correctly here. I simply made a new import helper:
+I'm using the vite environment API, this allows to import the client modules using an import helper:
 
 ```tsx
 import { ESModulesEvaluator, ModuleRunner } from "vite/module-runner";
@@ -185,45 +185,40 @@ const plugin = {
 };
 ```
 
-However, hot module reload doesn't work in this way, and the plugin also seem to mess up browser module mocking somehow.
-I hope to get some guidance from the vite team here.
 
 ### Nextjs example
 
-For example, I tried to make a nextjs example with module mocking:
+There is an example in the repo, with some utilities to get nextjs unit tests working as well.
 
 ```tsx
-import { describe, expect, test, vi } from "vitest";
-import { renderServer } from "vitest-plugin-rsc/testing-library";
-import { screen } from "@testing-library/dom";
-import AuthButton from "./auth-button.tsx";
-import { RequestCookiesAdapter } from "next/dist/server/web/spec-extension/adapters/request-cookies";
-import { RequestCookies } from "next/dist/compiled/@edge-runtime/cookies";
-import { getUser } from "../lib/session.ts";
+test('note editor saves note and redirects after submitting note', async () => {
+  const created_by = 'kasper'
+  vi.mocked(getUser).mockReturnValue(created_by)
+  const title = 'This is a title'
+  const body = 'This is a body'
 
-vi.mock(import("../lib/session"), { spy: true });
+  await renderServer(
+    <NextRouter url="/note/edit">
+      <NoteEditor noteId={null} initialTitle={title} initialBody={body} />
+    </NextRouter>
+  )
 
-vi.mock("next/headers", () => ({
-  cookies: async () => RequestCookiesAdapter.seal(new RequestCookies(new Headers())),
-}));
-
-test("renders add button when logged in", async () => {
-  vi.mocked(getUser).mockReturnValue("some-user");
-
-  await renderServer(<AuthButton noteId={null}>Add</AuthButton>);
-
-  expect(await screen.findByRole("menuitem", { name: /Add/ })).toBeVisible();
-});
+  await userEvent.click(await screen.findByRole('menuitem', { name: 'Done' }))
+  const id = Date.now().toString()
+  await expectNavigation(`/note/${id}`)
+  expect(setNote).toHaveBeenLastCalledWith(id, {
+    id,
+    title,
+    body,
+    created_by,
+    updated_at: Date.now()
+  })
+})
 ```
-
-This works correctly the first run, but the mocks are not applied anymore in a second test run.
-
-Especially for nextjs support, getting module mocking working seems essential to mock apis like:
-`cookies`, `headers`,  `redirect` and `revalidatePath`
 
 ### Direction forward
 
-Although there are some rough edges, I think this is the best way forward for unit-testing/component testing RSC's.
+I think this is the best way forward for unit-testing/component testing RSC's.
 Running both the server and client in the same runtime, might seem weird at first, I think it is the only way to get a unit test like experience.
 In a unit test, you want to be able to run any function or component in the unit test, not only specific routes.
 You also want to easily mock globals, time, http, modules, fs etc.
@@ -231,7 +226,7 @@ You also want to easily mock globals, time, http, modules, fs etc.
 For example, in this approach, you can mock the date in the backend and frontend with a simple line before your test:
 
 ```tsx
-test('allows purchases within business hours', () => {
+test('allows purchases within business hours', async () => {
   // set hour within business hours
   const date = new Date(2000, 1, 1, 13)
   vi.setSystemTime(date)

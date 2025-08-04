@@ -2,9 +2,11 @@
 globalThis.process = { env: {} }
 globalThis.__dirname = null!
 
+import { configure } from '@testing-library/dom'
 import { userEvent } from '@testing-library/user-event'
+import { isNextRouterError } from 'next/dist/client/components/is-next-router-error'
 import { beforeAll, beforeEach, vi } from 'vitest'
-import { cleanup, setupRuntime } from 'vitest-plugin-rsc/testing-library'
+import { cleanup, initialize } from 'vitest-plugin-rsc/testing-library'
 import { RequestCookiesAdapter } from 'next/dist/server/web/spec-extension/adapters/request-cookies'
 import { RequestCookies } from 'next/dist/compiled/@edge-runtime/cookies'
 import 'app/style.css'
@@ -45,7 +47,15 @@ vi.mock('next/headers', () => ({
 }))
 
 beforeAll(async () => {
-  setupRuntime()
+  configure({ asyncUtilTimeout: 2000 })
+  initialize({
+    rootOptions: {
+      onCaughtError: (error) => {
+        if (isNextRouterError(error)) return
+        console.log(error)
+      }
+    }
+  })
 })
 
 beforeEach(async (context) => {

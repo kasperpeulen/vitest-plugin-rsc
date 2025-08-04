@@ -26,7 +26,6 @@ export const NextRouter = ({
   url?: string
 }) => {
   route ??= url
-  const [newUrl, setNewUrl] = useState<URL>()
   const location = new URL(url, 'http://localhost')
 
   const actionQueue: AppRouterActionQueue = {
@@ -51,7 +50,6 @@ export const NextRouter = ({
     }),
     dispatch: (payload, setState) => {
       if (payload.type === 'navigate') {
-        setNewUrl(payload.url)
         globalThis.onNavigate(payload.url)
       }
     },
@@ -61,24 +59,6 @@ export const NextRouter = ({
     pending: null,
     last: null,
     onRouterTransitionStart: null
-  }
-  if (newUrl) {
-    return (
-      <div className="redirect-info">
-        <h3>Navigation</h3>
-        <div className="url-details">
-          <p>
-            <strong>Pathname:</strong> {newUrl.pathname}
-          </p>
-          <p>
-            <strong>Search:</strong> {newUrl.search}
-          </p>
-          <p>
-            <strong>Hash:</strong> {newUrl.hash}
-          </p>
-        </div>
-      </div>
-    )
   }
   return <AppRouter actionQueue={actionQueue}></AppRouter>
 }

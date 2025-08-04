@@ -1,4 +1,4 @@
-import type { Container } from "react-dom/client";
+import type { Container, RootOptions } from "react-dom/client";
 import type { JSXElementConstructor, ReactNode } from "react";
 import { importReactClient } from "./utilts";
 import type {
@@ -111,19 +111,21 @@ export async function cleanup() {
 
 export interface RenderConfiguration {
   reactStrictMode: boolean;
+  rootOptions: RootOptions;
 }
 
 const config: RenderConfiguration = {
   reactStrictMode: false,
+  rootOptions: {},
 };
-
-export function configure(customConfig: Partial<RenderConfiguration>): void {
-  Object.assign(config, customConfig);
-}
 
 declare let __vite_rsc_raw_import__: (id: string) => Promise<unknown>;
 
-export function setupRuntime(): void {
+export function initialize(
+  customConfig: Partial<RenderConfiguration> = {},
+): void {
+  Object.assign(config, customConfig);
+
   ReactServer.setRequireModule({
     load: (id) => __vite_rsc_raw_import__(id),
   });
