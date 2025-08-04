@@ -1,3 +1,5 @@
+/// <reference types="@vitest/browser/context" />
+
 // @ts-ignore
 globalThis.process = { env: {} }
 globalThis.__dirname = null!
