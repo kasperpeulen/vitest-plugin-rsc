@@ -1,12 +1,12 @@
-import { configure, screen } from '@testing-library/dom'
+import { screen } from '@testing-library/dom'
 import { userEvent } from '@testing-library/user-event'
 import { expect, test, vi } from 'vitest'
+import { renderServer } from 'vitest-plugin-rsc/testing-library'
 import { setNote } from '../libs/notes'
 import { getUser } from '../libs/session'
 import { expectNavigation } from '../test/utilts'
 import { NextRouter } from './next-router'
 import NoteEditor from './note-editor'
-import { renderServer } from 'vitest-plugin-rsc/testing-library'
 
 test('note editor saves note and redirects after submitting note', async () => {
   const created_by = 'kasper'
