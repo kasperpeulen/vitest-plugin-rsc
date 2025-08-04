@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOMClient from "react-dom/client";
 import * as ReactClient from "@vitejs/plugin-rsc/react/browser";
-import type { RenderConfiguration } from "../dist/testing-library";
+import type { RenderConfiguration } from "./testing-library";
 
 export type RscPayload = {
   root: React.ReactNode;
@@ -55,7 +55,10 @@ export async function createTestingLibraryClientRoot(options: {
     browserRoot = <React.StrictMode>{browserRoot}</React.StrictMode>;
   }
 
-  const reactRoot = ReactDOMClient.createRoot(options.container);
+  const reactRoot = ReactDOMClient.createRoot(
+    options.container,
+    options.config.rootOptions,
+  );
   reactRoot.render(browserRoot);
 
   async function rerender() {

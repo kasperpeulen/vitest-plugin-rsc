@@ -6,11 +6,11 @@ globalThis.process = { env: {} };
 import { beforeAll, beforeEach } from "vitest";
 import { cleanup } from "vitest-plugin-rsc/testing-library";
 import { msw } from "./test/msw.ts";
-import { setupRuntime } from "vitest-plugin-rsc/testing-library";
+import { initialize } from "vitest-plugin-rsc/testing-library";
 
 beforeAll(async () => {
   await msw.start({ quiet: true, onUnhandledRequest: "bypass" });
-  setupRuntime();
+  initialize();
 });
 
 beforeEach(async () => {
