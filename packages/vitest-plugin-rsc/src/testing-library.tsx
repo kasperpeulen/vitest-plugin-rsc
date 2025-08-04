@@ -1,49 +1,21 @@
-import { renderToReadableStream } from "@vitejs/plugin-rsc/react/rsc";
-import type { Container, Root, RootOptions } from "react-dom/client";
-import type { JSX, JSXElementConstructor, ReactNode, Usable } from "react";
-import { setRequireModule } from "@vitejs/plugin-rsc/core/browser";
-import {
-  loadServerAction,
-  setRequireModule as setRequireServerModule,
-} from "@vitejs/plugin-rsc/core/rsc";
-import { setServerCallback } from "@vitejs/plugin-rsc/react/browser";
+import type { Container } from "react-dom/client";
+import type { JSXElementConstructor, ReactNode } from "react";
 import { importReactClient } from "./utilts";
+import type {
+  FetchRsc,
+  RscPayload,
+  TestingLibraryClientRoot,
+} from "./testing-library-client";
+import * as ReactServer from "@vitejs/plugin-rsc/react/rsc";
 
-export { importReactClient };
-
-const { default: React } = await importReactClient<{
-  default: typeof import("react");
-}>("react");
-
-const {
-  default: { createRoot },
-} = await importReactClient<{ default: typeof import("react-dom/client") }>(
-  "react-dom/client",
-);
-const { createFromReadableStream } = await importReactClient<
-  typeof import("@vitejs/plugin-rsc/react/browser")
->("@vitejs/plugin-rsc/react/browser");
-
-declare global {
-  var IS_REACT_ACT_ENVIRONMENT: boolean;
-}
-
-// we call act only when rendering to flush any possible effects
-// usually the async nature of Vitest browser mode ensures consistency,
-// but rendering is sync and controlled by React directly
-async function act<T>(callback: () => T | Promise<T>) {
-  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
-  try {
-    await React.act(callback);
-  } finally {
-    globalThis.IS_REACT_ACT_ENVIRONMENT = false;
-  }
-}
+const client = await importReactClient<
+  typeof import("./testing-library-client")
+>("vitest-plugin-rsc/testing-library-client");
 
 const mountedContainers = new Set<Container>();
 const mountedRootEntries: {
   container: Container;
-  root: Root;
+  root: TestingLibraryClientRoot;
 }[] = [];
 
 export async function renderServer(
@@ -52,14 +24,13 @@ export async function renderServer(
     container,
     baseElement = document.body,
     wrapper: WrapperComponent,
-    rerenderOnServerAction = false,
-    rootOptions,
+    // TODO: why disable?
+    // rerenderOnServerAction = false,
   }: {
     container?: HTMLElement;
     baseElement?: HTMLElement;
     wrapper?: JSXElementConstructor<{ children: ReactNode }>;
     rerenderOnServerAction?: boolean;
-    rootOptions?: RootOptions;
   } = {},
 ): Promise<{
   container: HTMLElement;
@@ -70,40 +41,55 @@ export async function renderServer(
 }> {
   container ??= baseElement.appendChild(document.createElement("div"));
 
-  let root: Root;
+  let root: TestingLibraryClientRoot;
 
   if (!mountedContainers.has(container)) {
-    root = createRoot(container, rootOptions);
+    const fetchRsc: FetchRsc = async (actionRequest) => {
+      let returnValue: unknown | undefined;
+      let temporaryReferences: unknown | undefined;
+      if (actionRequest) {
+        const { id, reply } = actionRequest;
+        temporaryReferences = ReactServer.createTemporaryReferenceSet();
+        const args = await ReactServer.decodeReply(reply, {
+          temporaryReferences,
+        });
+        const action = await ReactServer.loadServerAction(id);
+        returnValue = await action.apply(null, args);
+      }
+      let serverRoot = ui;
+      if (WrapperComponent) {
+        serverRoot = <WrapperComponent>{ui}</WrapperComponent>;
+      }
+      const rscPayload: RscPayload = {
+        root: serverRoot,
+        returnValue,
+      };
+      const rscOptions = { temporaryReferences };
+      const stream = ReactServer.renderToReadableStream<RscPayload>(
+        rscPayload,
+        rscOptions,
+      );
+      return stream;
+    };
+    root = await client.createTestingLibraryClientRoot({
+      container,
+      config,
+      fetchRsc,
+    });
     mountedRootEntries.push({ container, root });
     mountedContainers.add(container);
   } else {
     root = mountedRootEntries.find((it) => it.container === container)!.root;
   }
 
-  const render = async (ui: ReactNode) => {
-    const element = await createFromReadableStream<ReactNode>(
-      renderToReadableStream(ui),
-    );
-    return root.render(
-      strictModeIfNeeded(wrapUiIfNeeded(element, WrapperComponent)),
-    );
-  };
-
-  if (rerenderOnServerAction) {
-    setServerCallback(async (id, args) => {
-      const result = await defaultServerCallback(id, args);
-      await act(() => React.startTransition(() => render(ui)));
-      return result;
-    });
-  }
-
-  await render(ui);
-
   return {
     container,
     baseElement,
-    rerender: (ui) => act(async () => render(ui)),
-    unmount: () => act(async () => root.unmount()),
+    unmount: root.unmount,
+    rerender: async (newUi) => {
+      ui = newUi;
+      await root.rerender();
+    },
     asFragment: () => {
       return document
         .createRange()
@@ -114,15 +100,13 @@ export async function renderServer(
 
 export async function cleanup() {
   for (const { root, container } of mountedRootEntries) {
-    await act(async () => root.unmount());
+    await root.unmount();
     if (container.parentNode === document.body) {
       document.body.removeChild(container);
     }
   }
   mountedRootEntries.length = 0;
   mountedContainers.clear();
-
-  setServerCallback(defaultServerCallback);
 }
 
 export interface RenderConfiguration {
@@ -133,44 +117,15 @@ const config: RenderConfiguration = {
   reactStrictMode: false,
 };
 
-function strictModeIfNeeded(innerElement: ReactNode) {
-  return config.reactStrictMode
-    ? React.createElement(React.StrictMode, null, innerElement)
-    : innerElement;
-}
-
-function wrapUiIfNeeded(
-  innerElement: ReactNode,
-  wrapperComponent?: JSXElementConstructor<{
-    children: ReactNode;
-  }>,
-) {
-  return wrapperComponent
-    ? React.createElement(wrapperComponent, null, innerElement)
-    : innerElement;
-}
-
 export function configure(customConfig: Partial<RenderConfiguration>): void {
   Object.assign(config, customConfig);
 }
 
+declare let __vite_rsc_raw_import__: (id: string) => Promise<unknown>;
+
 export function setupRuntime(): void {
-  setRequireModule({ load: (id) => importReactClient(id) });
-  setRequireServerModule({ load: (id) => import(/* @vite-ignore */ id) });
-  setServerCallback(defaultServerCallback);
-}
-
-let promise: Promise<void>;
-
-export async function waitForServerAction() {
-  await promise;
-}
-
-export async function defaultServerCallback(id: string, args: unknown[]) {
-  const resolvers = Promise.withResolvers<void>();
-  promise = resolvers.promise;
-  const action = await loadServerAction(id);
-  const result = await action(...args);
-  resolvers.resolve();
-  return result;
+  ReactServer.setRequireModule({
+    load: (id) => __vite_rsc_raw_import__(id),
+  });
+  client.initialize();
 }

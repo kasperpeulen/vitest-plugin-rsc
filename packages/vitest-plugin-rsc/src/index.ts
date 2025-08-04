@@ -1,9 +1,14 @@
 import { type Plugin } from "vite";
-import { vitePluginRsc } from "./vite-plugin/plugin";
+import { vitePluginRscMinimal } from "@vitejs/plugin-rsc/plugin";
 
 export default function vitestPluginRSC(): Plugin[] {
   return [
-    ...vitePluginRsc(),
+    ...vitePluginRscMinimal({
+      environment: {
+        browser: "react_client",
+        rsc: "client",
+      },
+    }),
     {
       name: "rsc:run-in-browser",
       configureServer(server) {
@@ -40,11 +45,13 @@ export default function vitestPluginRSC(): Plugin[] {
                   "react-dom/client",
                   "react/jsx-runtime",
                   "react/jsx-dev-runtime",
-                  "@vitejs/plugin-rsc/vendor/react-server-dom/server.browser",
+                  // TODO: browser build is missing features and breaks action bind
                   "@vitejs/plugin-rsc/vendor/react-server-dom/server.edge",
                   "@vitejs/plugin-rsc/vendor/react-server-dom/client.edge",
-                  "@vitejs/plugin-rsc/vendor/react-server-dom/client.browser",
+                  // "@vitejs/plugin-rsc/vendor/react-server-dom/server.browser",
+                  // "@vitejs/plugin-rsc/vendor/react-server-dom/client.browser",
                 ],
+                exclude: ["vite", "vitest-plugin-rsc", "@vitejs/plugin-rsc"],
               },
             },
             react_client: {
@@ -62,21 +69,21 @@ export default function vitestPluginRSC(): Plugin[] {
                   "react/jsx-dev-runtime",
                   "@vitejs/plugin-rsc/vendor/react-server-dom/client.browser",
                 ],
-                exclude: ["fsevents"],
+                exclude: ["vitest-plugin-rsc", "@vitejs/plugin-rsc"],
                 esbuildOptions: {
                   platform: "browser",
                 },
               },
             },
           },
-          resolve: {
-            alias: {
-              "@vitejs/plugin-rsc/vendor/react-server-dom/server.edge":
-                "@vitejs/plugin-rsc/vendor/react-server-dom/server.browser",
-              "@vitejs/plugin-rsc/vendor/react-server-dom/client.edge":
-                "@vitejs/plugin-rsc/vendor/react-server-dom/client.browser",
-            },
-          },
+          // resolve: {
+          //   alias: {
+          //     "@vitejs/plugin-rsc/vendor/react-server-dom/server.edge":
+          //       "@vitejs/plugin-rsc/vendor/react-server-dom/server.browser",
+          //     "@vitejs/plugin-rsc/vendor/react-server-dom/client.edge":
+          //       "@vitejs/plugin-rsc/vendor/react-server-dom/client.browser",
+          //   },
+          // },
         };
       },
     },
