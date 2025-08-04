@@ -28,6 +28,8 @@ vi.mock(import('../libs/notes'), () => ({
   setNote: vi.fn()
 }))
 
+vi.mock(import('next/cache'), { spy: true })
+
 vi.mock(import('next/navigation'), () => {
   return {
     redirect,
@@ -59,6 +61,10 @@ beforeAll(async () => {
 })
 
 beforeEach(async (context) => {
+  const { revalidatePath } = await import('next/cache')
+
+  // mock out for now
+  vi.mocked(revalidatePath).mockImplementation(() => {})
   // msw.resetHandlers()
   await cleanup()
 

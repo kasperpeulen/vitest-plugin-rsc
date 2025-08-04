@@ -1,7 +1,7 @@
 'use server'
 
 import { getUser, userCookieKey } from 'libs/session'
-// import { revalidatePath } from 'next/cache'
+import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 import { cookies } from 'next/headers'
@@ -34,11 +34,11 @@ export async function saveNote(
 
   await setNote(noteId, payload)
 
-  // revalidatePath('/')
+  revalidatePath('/')
   redirect(`/note/${noteId}`)
 }
 
 export async function deleteNote(noteId: string) {
-  // revalidatePath('/')
+  revalidatePath('/')
   redirect('/')
 }
