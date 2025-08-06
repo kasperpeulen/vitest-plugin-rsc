@@ -6,7 +6,7 @@ export default defineConfig({
     "src/setup.ts",
     "src/testing-library.tsx",
     "src/testing-library-client.tsx",
-    "src/nextjs/testing-library.ts",
+    "src/nextjs.tsx",
   ],
   format: ["esm"],
   external: [/^virtual:/, /^@vitejs\/plugin-rsc\/vendor\//],

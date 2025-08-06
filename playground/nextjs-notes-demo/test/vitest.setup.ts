@@ -1,5 +1,9 @@
 /// <reference types="@vitest/browser/context" />
 
+// @ts-ignore
+globalThis.process = { env: {} }
+globalThis.__dirname = null!
+
 import { configure } from '@testing-library/dom'
 import { userEvent } from '@testing-library/user-event'
 import { isNextRouterError } from 'next/dist/client/components/is-next-router-error'
@@ -72,6 +76,7 @@ beforeEach(async (context) => {
   await cleanup()
 
   MockDate.set(new Date(2012, 3, 4, 5, 6, 7))
+  context.userEvent = userEvent.setup()
 })
 
 declare module 'vitest' {

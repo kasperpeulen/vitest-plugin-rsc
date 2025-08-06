@@ -15,6 +15,12 @@
     ".": "./dist/index.js",
     "./*": "./dist/*.js"
   },
+  "imports": {
+    "#navigation": {
+      "react-server": "./test/navigation.react-server.ts",
+      "default": "./test/navigation.ts"
+    }
+  },
   "files": [
     "dist"
   ],
@@ -46,14 +52,10 @@
     "react": "*",
     "react-dom": "*",
     "vite": "*",
-    "vitest": "*",
     "next": "*"
   },
   "peerDependenciesMeta": {
     "next": {
-      "optional": true
-    },
-    "vitest": {
       "optional": true
     }
   }

@@ -4,8 +4,7 @@ import { expect, test, vi } from 'vitest'
 import { renderServer } from 'vitest-plugin-rsc/testing-library'
 import { setNote } from '../libs/notes'
 import { getUser } from '../libs/session'
-import { NextRouter } from 'vitest-plugin-rsc/nextjs/testing-library'
-
+import { NextRouter } from 'vitest-plugin-rsc/nextjs'
 import { expectNavigation } from '../test/utilts'
 
 import NoteEditor from './note-editor'
