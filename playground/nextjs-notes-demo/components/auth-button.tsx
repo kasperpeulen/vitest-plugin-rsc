@@ -17,7 +17,7 @@ export default async function AuthButton({
 
   if (user) {
     return (
-      <a href={`/note/edit/${noteId || ''}`} className="link--unstyled">
+      <Link href={`/note/edit/${noteId || ''}`} className="link--unstyled">
         <button
           className={[
             'edit-button',
@@ -33,7 +33,7 @@ export default async function AuthButton({
             className="avatar"
           />
         </button>
-      </a>
+      </Link>
     )
   }
 

@@ -16,6 +16,10 @@ export default defineConfig({
     },
     setupFiles: ['./test/vitest.setup.ts']
   },
+  define: {
+    process: JSON.stringify({ env: {} }),
+    __dirname: null
+  },
   resolve: {
     alias: {
       // This is somehow needed for the vite plugin to register is as a client component

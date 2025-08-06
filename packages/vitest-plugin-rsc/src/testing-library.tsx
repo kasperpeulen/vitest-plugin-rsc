@@ -24,8 +24,6 @@ export async function renderServer(
     container,
     baseElement = document.body,
     wrapper: WrapperComponent,
-    // TODO: why disable?
-    // rerenderOnServerAction = false,
   }: {
     container?: HTMLElement;
     baseElement?: HTMLElement;

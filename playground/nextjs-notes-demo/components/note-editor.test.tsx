@@ -4,8 +4,10 @@ import { expect, test, vi } from 'vitest'
 import { renderServer } from 'vitest-plugin-rsc/testing-library'
 import { setNote } from '../libs/notes'
 import { getUser } from '../libs/session'
+import { NextRouter } from 'vitest-plugin-rsc/nextjs/testing-library'
+
 import { expectNavigation } from '../test/utilts'
-import { NextRouter } from './next-router'
+
 import NoteEditor from './note-editor'
 
 test('note editor saves note and redirects after submitting note', async () => {

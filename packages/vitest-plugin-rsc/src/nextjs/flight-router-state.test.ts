@@ -1,9 +1,13 @@
-import { expect, test } from 'vitest'
-import { buildFlightRouterState } from './tree'
+import { expect, test } from "vitest";
+import { buildFlightRouterState } from "./flight-router-state";
 
-test('parse route and url to route true', () => {
+test("parse route and url to route true", () => {
   expect(
-    buildFlightRouterState('/note/[id]/[slug]', '/note/someid/someslug', '?a=1')
+    buildFlightRouterState(
+      "/note/[id]/[slug]",
+      "/note/someid/someslug",
+      "?a=1",
+    ),
   ).toMatchInlineSnapshot(`
     [
       "",
@@ -42,5 +46,5 @@ test('parse route and url to route true', () => {
       undefined,
       true,
     ]
-  `)
-})
+  `);
+});

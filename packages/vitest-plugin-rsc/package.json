@@ -29,7 +29,8 @@
     "@hiogawa/utils": "^1.7.0",
     "estree-walker": "^3.0.3",
     "magic-string": "^0.30.17",
-    "periscopic": "^4.0.2"
+    "periscopic": "^4.0.2",
+    "@vitest/spy": "^3.2.4"
   },
   "devDependencies": {
     "@types/node": "^22.16.3",
@@ -38,11 +39,22 @@
     "@types/estree": "^1.0.8",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "tsdown": "^0.12.9"
+    "tsdown": "^0.12.9",
+    "next": "^15.4.5"
   },
   "peerDependencies": {
     "react": "*",
     "react-dom": "*",
-    "vite": "*"
+    "vite": "*",
+    "vitest": "*",
+    "next": "*"
+  },
+  "peerDependenciesMeta": {
+    "next": {
+      "optional": true
+    },
+    "vitest": {
+      "optional": true
+    }
   }
 }

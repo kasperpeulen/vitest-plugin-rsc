@@ -5,7 +5,7 @@
     "build": "next build",
     "start": "next start",
     "format": "prettier --write .",
-    "test:watch": "rm -rf .vite && vitest watch note-editor.test.tsx"
+    "test:watch": "rm -rf .vite && vitest watch"
   },
   "imports": {
     "#navigation": {
