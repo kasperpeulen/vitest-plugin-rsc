@@ -44,6 +44,9 @@ importers:
       '@vitejs/plugin-rsc':
         specifier: 0.4.16
         version: 0.4.16(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(vite@7.0.6(@types/node@22.16.5)(jiti@2.4.2)(tsx@4.20.3))
+      '@vitest/expect':
+        specifier: ^3.2.4
+        version: 3.2.4
       '@vitest/spy':
         specifier: ^3.2.4
         version: 3.2.4

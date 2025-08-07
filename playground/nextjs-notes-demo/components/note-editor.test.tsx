@@ -1,15 +1,18 @@
-import { screen } from '@testing-library/dom'
+import { screen, waitFor } from '@testing-library/dom'
 import { userEvent } from '@testing-library/user-event'
 import { expect, test, vi } from 'vitest'
 import {
+  expectToHaveBeenNavigatedTo,
   NextRouter,
   renderServer
 } from 'vitest-plugin-rsc/nextjs/testing-library'
 import { setNote } from '../libs/notes'
 import { getUser } from '../libs/session'
-import { expectNavigation } from '../test/utilts'
 
 import NoteEditor from './note-editor'
+
+vi.mock(import('../libs/session'), { spy: true })
+vi.mock(import('../libs/notes'), () => ({ getNote: vi.fn(), setNote: vi.fn() }))
 
 test('note editor saves note and redirects after submitting note', async () => {
   const created_by = 'kasper'
@@ -25,7 +28,7 @@ test('note editor saves note and redirects after submitting note', async () => {
 
   await userEvent.click(await screen.findByRole('menuitem', { name: 'Done' }))
   const id = Date.now().toString()
-  await expectNavigation(`/note/${id}`)
+  await waitFor(() => expectToHaveBeenNavigatedTo({ pathname: `/note/${id}` }))
   expect(setNote).toHaveBeenLastCalledWith(id, {
     id,
     title,

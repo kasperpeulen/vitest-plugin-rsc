@@ -37,7 +37,8 @@
   },
   "dependencies": {
     "@vitejs/plugin-rsc": "0.4.16",
-    "@vitest/spy": "^3.2.4"
+    "@vitest/spy": "^3.2.4",
+    "@vitest/expect": "^3.2.4"
   },
   "devDependencies": {
     "@types/node": "^22.16.3",

@@ -20,3 +20,12 @@ export function initialize(
 }
 
 export { NextRouter } from "vitest-plugin-rsc/nextjs/client";
+
+// @ts-ignore
+const expect = globalThis[Symbol.for("expect-global")];
+
+export async function expectToHaveBeenNavigatedTo(url: Partial<URL>) {
+  expect(globalThis.onNavigate).toHaveBeenCalledWith(
+    expect.objectContaining(url),
+  );
+}

@@ -4,7 +4,6 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-
 ## 📋 Requirements
 
 The plugin currently **requires Vitest’s browser mode**.
@@ -16,7 +15,7 @@ The plugin currently **requires Vitest’s browser mode**.
 ```ts
 // vitest.config.ts
 import { defineConfig } from "vitest/config";
-import vitestPluginRSC from "vitest-plugin-rsc";
+import { vitestPluginRSC } from "vitest-plugin-rsc";
 
 export default defineConfig({
   plugins: [vitestPluginRSC()],
@@ -65,7 +64,7 @@ test("increments likes on click", async () => {
     http.get(api("/users"), () => Response.json([{ id: 5, name: "Ada" }])),
   );
 
-  await renderServer(<Users />, { rerenderOnServerAction: true });
+  await renderServer(<Users />);
 
   expect(await getLikes(5)).toBe(0);
 
@@ -91,7 +90,7 @@ import { renderToReadableStream } from "@vitejs/plugin-rsc/react/rsc";
 
 // 👇 this is imported with a helper, to get the correct export conditions in the module resolution
 const { createFromReadableStream } = await importReactClient(
-  "@vitejs/plugin-rsc/react/browser"
+  "@vitejs/plugin-rsc/react/browser",
 );
 
 // serialize
@@ -108,6 +107,7 @@ The vitest plugins spawns 2 environments.
 ### Transformations
 
 The transformations of the vite plugin will make sure that for a client import in the server tree like:
+
 ```tsx
 "use client";
 import { useState } from "react";
@@ -124,6 +124,7 @@ export function Like() {
 ```
 
 Is transformed to a reference:
+
 ```tsx
 import { registerClientReference } from "@vitejs/plugin-rsc/vendor/react-server-dom/server";
 
@@ -185,35 +186,34 @@ const plugin = {
 };
 ```
 
-
 ### Nextjs example
 
 There is an example in the repo, with some utilities to get nextjs unit tests working as well.
 
 ```tsx
-test('note editor saves note and redirects after submitting note', async () => {
-  const created_by = 'kasper'
-  vi.mocked(getUser).mockReturnValue(created_by)
-  const title = 'This is a title'
-  const body = 'This is a body'
+test("note editor saves note and redirects after submitting note", async () => {
+  const created_by = "kasper";
+  vi.mocked(getUser).mockReturnValue(created_by);
+  const title = "This is a title";
+  const body = "This is a body";
 
   await renderServer(
     <NextRouter url="/note/edit">
       <NoteEditor noteId={null} initialTitle={title} initialBody={body} />
-    </NextRouter>
-  )
+    </NextRouter>,
+  );
 
-  await userEvent.click(await screen.findByRole('menuitem', { name: 'Done' }))
-  const id = Date.now().toString()
-  await expectNavigation(`/note/${id}`)
+  await userEvent.click(await screen.findByRole("menuitem", { name: "Done" }));
+  const id = Date.now().toString();
+  await expectNavigation(`/note/${id}`);
   expect(setNote).toHaveBeenLastCalledWith(id, {
     id,
     title,
     body,
     created_by,
-    updated_at: Date.now()
-  })
-})
+    updated_at: Date.now(),
+  });
+});
 ```
 
 ### Direction forward
@@ -226,25 +226,30 @@ You also want to easily mock globals, time, http, modules, fs etc.
 For example, in this approach, you can mock the date in the backend and frontend with a simple line before your test:
 
 ```tsx
-test('allows purchases within business hours', async () => {
+test("allows purchases within business hours", async () => {
   // set hour within business hours
-  const date = new Date(2000, 1, 1, 13)
-  vi.setSystemTime(date)
+  const date = new Date(2000, 1, 1, 13);
+  vi.setSystemTime(date);
   await renderServer(<PurchaseItem />);
-})
+});
 ```
 
 Or mock out http endpoints (both in the backend and client):
 
 ```tsx
 test("users mock", async () => {
-  msw.use(http.get(api("/users"), () => Response.json([{ id: 5, name: "some user" }])));
+  msw.use(
+    http.get(api("/users"), () =>
+      Response.json([{ id: 5, name: "some user" }]),
+    ),
+  );
 
   await renderServer(<Users />);
 });
 ```
 
 #### Using vitest browser mode
+
 At this moment, I only got it working with vitest browser mode, not yet with jsdom.
 It might seem useful to run it in jsdom, as RSC often run in node as well.
 Personally, I think that is very useful to get visual feedback of your react components in `vitest` or `storybook`.
@@ -252,7 +257,7 @@ Personally, I think that is very useful to get visual feedback of your react com
 Also it is easier to mock our node correctly, than mock out the browser correctly.
 
 Especially, because in modern code people often use web based API's in the RSC components such as:
-`fetch`, `Headers`, `Request`, `Response`, `crypto`, `TextEncoder`, `TextDecoder`, `URL`, `Blob`, `File`,  `FormData`, `atob`, `btoa`, `ReadableStream`,
+`fetch`, `Headers`, `Request`, `Response`, `crypto`, `TextEncoder`, `TextDecoder`, `URL`, `Blob`, `File`, `FormData`, `atob`, `btoa`, `ReadableStream`,
 
 The filesystem is easily mocked out with an in-memory file system:
 https://vitest.dev/guide/mocking.html#file-system
