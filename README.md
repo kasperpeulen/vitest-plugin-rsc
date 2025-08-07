@@ -3,6 +3,8 @@
 > 🔬 **Experimental** Vitest plugin that brings first‑class **unit testing for [React Server Components](https://react.dev/reference/rsc)** (RSC) into your project.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![npm](https://img.shields.io/npm/v/vitest-plugin-rsc)
+
 
 ## 📋 Requirements
 
