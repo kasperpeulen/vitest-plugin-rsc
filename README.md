@@ -109,7 +109,7 @@ The url and route are optional, but necessary when your component uses the Link 
 
 `usePathname`, `useParams`, `useSearchParams`
 
-For a full example how you can unit test a nextjs component:
+Here is a full example how you can unit test a nextjs component in vitest:
 
 ```tsx
 import { screen, waitFor } from "@testing-library/dom";
