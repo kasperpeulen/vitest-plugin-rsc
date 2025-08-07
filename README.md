@@ -91,9 +91,23 @@ test("increments likes on click", async () => {
 });
 ```
 
-### 5. Use next utilities
+### 5. Use together with nextjs
 
-There is an example in the repo, with some utilities to get nextjs unit tests working as well.
+Nextjs needs some extra configuration to get working, and to provide the necessary providers.
+
+The NextRouter component provides all necessary providers:
+
+```tsx
+  <NextRouter url="/note/someid/someslug?query=1" route="/note/[id]/[slug]">
+    <NoteEditor initialTitle={title} initialBody={body} />
+  </NextRouter>
+```
+
+The url and route are optional, but necessary when your component uses the Link component or hooks such as:
+
+`usePathname`, `useParams`, `useSearchParams`
+
+For a full example how you can unit test a nextjs component:
 
 ```tsx
 import { screen, waitFor } from "@testing-library/dom";
