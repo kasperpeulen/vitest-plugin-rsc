@@ -50,6 +50,8 @@ export default defineConfig({
 // src/vitest.setup.ts
 import { beforeAll, beforeEach } from "vitest";
 import { cleanup, initialize } from "vitest-plugin-rsc/testing-library";
+// or 
+import { cleanup, initialize } from "vitest-plugin-rsc/nextjs/testing-library";
 
 beforeAll(() => {
   initialize(); // ⬅️ spins up the RSC runtime
