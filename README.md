@@ -10,7 +10,16 @@ The plugin currently **requires Vitest’s browser mode**.
 
 ## ⚡ Quick start
 
-### 1. Register the plugin in `vitest.config.ts`
+### 1. Install the package
+
+```bash
+npm install -D vitest-plugin-rsc
+pnpm add -D vitest-plugin-rsc
+yarn add -D vitest-plugin-rsc
+bun add -D vitest-plugin-rsc
+```
+
+### 2. Register the plugin in `vitest.config.ts`
 
 ```ts
 // vitest.config.ts
@@ -33,7 +42,7 @@ export default defineConfig({
 });
 ```
 
-### 2. Boot the runtime
+### 3. Boot the runtime
 
 ```ts
 // src/vitest.setup.ts
@@ -49,7 +58,7 @@ beforeEach(async () => {
 });
 ```
 
-### 3. Write your first RSC test
+### 4. Write your first RSC test
 
 ```tsx
 import { expect, test, screen } from "vitest";
@@ -80,7 +89,7 @@ test("increments likes on click", async () => {
 });
 ```
 
-### 4. Use next utilities
+### 5. Use next utilities
 
 There is an example in the repo, with some utilities to get nextjs unit tests working as well.
 
@@ -95,14 +104,10 @@ import {
 } from "vitest-plugin-rsc/nextjs/testing-library";
 import { setNote } from "../libs/notes";
 import { getUser } from "../libs/session";
-
 import NoteEditor from "./note-editor";
 
 vi.mock(import("../libs/session"), { spy: true });
-vi.mock(import("../libs/notes"), () => ({
-  getNote: vi.fn(),
-  setNote: vi.fn(),
-}));
+vi.mock(import("../libs/notes"), () => ({ setNote: vi.fn() }));
 
 test("note editor saves note and redirects after submitting note", async () => {
   const created_by = "kasper";
