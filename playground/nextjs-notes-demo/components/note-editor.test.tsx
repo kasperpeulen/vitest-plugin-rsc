@@ -11,9 +11,6 @@ import { getUser } from '../libs/session'
 
 import NoteEditor from './note-editor'
 
-vi.mock(import('../libs/session'), { spy: true })
-vi.mock(import('../libs/notes'), () => ({ getNote: vi.fn(), setNote: vi.fn() }))
-
 test('note editor saves note and redirects after submitting note', async () => {
   const created_by = 'kasper'
   vi.mocked(getUser).mockReturnValue(created_by)
