@@ -1,6 +1,6 @@
 {
   "name": "vitest-plugin-rsc",
-  "version": "0.0.0-experimental-64e35ee-20250807",
+  "version": "0.0.0-experimental-9f1f65ef-20250807",
   "description": "React Server Components (RSC) support for Vitest.",
   "keywords": [
     "vite",
@@ -33,7 +33,8 @@
     "test": "vitest",
     "dev": "tsdown --sourcemap --watch src",
     "build": "tsdown",
-    "prepack": "tsdown"
+    "prepack": "tsdown",
+    "publish": "npm publish --tag experimental"
   },
   "dependencies": {
     "@vitejs/plugin-rsc": "0.4.16",
