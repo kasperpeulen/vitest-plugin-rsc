@@ -41,24 +41,12 @@ importers:
 
   packages/vitest-plugin-rsc:
     dependencies:
-      '@hiogawa/utils':
-        specifier: ^1.7.0
-        version: 1.7.0
       '@vitejs/plugin-rsc':
         specifier: 0.4.16
         version: 0.4.16(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(vite@7.0.6(@types/node@22.16.5)(jiti@2.4.2)(tsx@4.20.3))
       '@vitest/spy':
         specifier: ^3.2.4
         version: 3.2.4
-      estree-walker:
-        specifier: ^3.0.3
-        version: 3.0.3
-      magic-string:
-        specifier: ^0.30.17
-        version: 0.30.17
-      periscopic:
-        specifier: ^4.0.2
-        version: 4.0.2
       vite:
         specifier: '*'
         version: 7.0.6(@types/node@22.16.5)(jiti@2.4.2)(tsx@4.20.3)
@@ -87,9 +75,6 @@ importers:
       tsdown:
         specifier: ^0.12.9
         version: 0.12.9(publint@0.3.12)(typescript@5.8.3)
-      vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@22.16.5)(@vitest/browser@3.2.4)(@vitest/ui@3.2.4)(jiti@2.4.2)(msw@2.10.4(@types/node@22.16.5)(typescript@5.8.3))(tsx@4.20.3)
 
   playground/nextjs-notes-demo:
     dependencies:
@@ -580,9 +565,6 @@ packages:
   '@eslint/plugin-kit@0.3.4':
     resolution: {integrity: sha512-Ul5l+lHEcw3L5+k8POx6r74mxEYKG5kOb6Xpy2gCRW6zweT6TEhAf8vhxGgjhqrd/VO/Dirhsb+1hNpD1ue9hw==, tarball: https://registry.npmjs.org/@eslint/plugin-kit/-/plugin-kit-0.3.4.tgz}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-
-  '@hiogawa/utils@1.7.0':
-    resolution: {integrity: sha512-ghiEFWBR1NENoHn+lSuW7liicTIzVPN+8Srm5UedCTw43gus0mlse6Wp2lz6GmbOXJ/CalMPp/0Tz2X8tajkAg==, tarball: https://registry.npmjs.org/@hiogawa/utils/-/utils-1.7.0.tgz}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==, tarball: https://registry.npmjs.org/@humanfs/core/-/core-0.19.1.tgz}
@@ -2966,8 +2948,6 @@ snapshots:
     dependencies:
       '@eslint/core': 0.15.1
       levn: 0.4.1
-
-  '@hiogawa/utils@1.7.0': {}
 
   '@humanfs/core@0.19.1': {}
 

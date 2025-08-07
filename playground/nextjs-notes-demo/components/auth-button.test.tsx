@@ -1,15 +1,16 @@
 import { expect, test, vi } from 'vitest'
-import { renderServer } from 'vitest-plugin-rsc/testing-library'
+import {
+  renderServer,
+  NextRouter
+} from 'vitest-plugin-rsc/nextjs/testing-library'
 
 import { screen } from '@testing-library/dom'
 import AuthButton from './auth-button'
 import { getUser } from '../libs/session'
 
-import { NextRouter } from 'vitest-plugin-rsc/nextjs'
-
 test('renders login button when logged out', async () => {
   await renderServer(
-    <NextRouter url="/bla/some-id" route="/bla/[id]">
+    <NextRouter>
       <AuthButton noteId={null}>Add</AuthButton>
     </NextRouter>
   )

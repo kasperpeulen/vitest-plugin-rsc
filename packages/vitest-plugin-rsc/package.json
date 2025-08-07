@@ -12,6 +12,10 @@
   "type": "module",
   "exports": {
     "./package.json": "./package.json",
+    "./dist/nextjs/navigation": {
+      "react-server": "./dist/nextjs/navigation.react-server.js",
+      "default": "./dist/nextjs/navigation.js"
+    },
     ".": "./dist/index.js",
     "./*": "./dist/*.js"
   },
@@ -32,10 +36,6 @@
   },
   "dependencies": {
     "@vitejs/plugin-rsc": "0.4.16",
-    "@hiogawa/utils": "^1.7.0",
-    "estree-walker": "^3.0.3",
-    "magic-string": "^0.30.17",
-    "periscopic": "^4.0.2",
     "@vitest/spy": "^3.2.4"
   },
   "devDependencies": {

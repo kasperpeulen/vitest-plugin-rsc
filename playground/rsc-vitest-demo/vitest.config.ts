@@ -1,5 +1,5 @@
 import { defineConfig } from "vitest/config";
-import vitestPluginRSC from "vitest-plugin-rsc";
+import { vitestPluginRSC } from "vitest-plugin-rsc";
 
 export default defineConfig({
   plugins: [vitestPluginRSC()],
@@ -12,19 +12,5 @@ export default defineConfig({
       instances: [{ browser: "chromium" }],
     },
     setupFiles: ["./src/vitest.setup.ts"],
-  },
-  resolve: {
-    alias: {
-      // This is somehow needed for the vite plugin to register is as a client component
-      "next/link": "next/dist/client/link",
-    },
-  },
-  environments: {
-    react_client: {
-      optimizeDeps: {
-        // Without this I get commonjs errors
-        include: ["next/link"],
-      },
-    },
   },
 });

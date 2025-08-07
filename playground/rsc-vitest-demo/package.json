@@ -8,7 +8,7 @@
     "check": "tsc -b",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "rm -rf .vite && vitest",
     "test:watch": "vitest watch"
   },
   "dependencies": {
