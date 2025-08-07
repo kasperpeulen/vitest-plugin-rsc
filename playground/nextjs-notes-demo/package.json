@@ -7,12 +7,6 @@
     "format": "prettier --write .",
     "test:watch": "rm -rf .vite && vitest watch"
   },
-  "imports": {
-    "#navigation": {
-      "react-server": "./test/navigation.react-server.ts",
-      "default": "./test/navigation.ts"
-    }
-  },
   "dependencies": {
     "@types/node": "^22.8.7",
     "@types/react": "^19.1.8",
@@ -40,7 +34,6 @@
     "@vitejs/plugin-react": "^4.7.0",
     "@vitejs/plugin-rsc": "^0.4.15",
     "@vitest/browser": "^3.2.4",
-    "@vitest/spy": "^3.2.4",
     "@vitest/ui": "^3.2.4",
     "msw": "^2.10.4",
     "vite": "^7.0.6",

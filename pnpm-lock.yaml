@@ -142,9 +142,6 @@ importers:
       '@vitest/browser':
         specifier: ^3.2.4
         version: 3.2.4(msw@2.10.4(@types/node@22.16.5)(typescript@5.8.3))(playwright@1.54.1)(vite@7.0.6(@types/node@22.16.5)(jiti@2.4.2)(tsx@4.20.3))(vitest@3.2.4)
-      '@vitest/spy':
-        specifier: ^3.2.4
-        version: 3.2.4
       '@vitest/ui':
         specifier: ^3.2.4
         version: 3.2.4(vitest@3.2.4)

@@ -1,6 +1,6 @@
 {
   "name": "vitest-plugin-rsc",
-  "private": true,
+  "version": "0.0.0-experimental-64e35ee-20250807",
   "description": "React Server Components (RSC) support for Vitest.",
   "keywords": [
     "vite",
@@ -8,6 +8,7 @@
     "react-server-components",
     "rsc"
   ],
+  "author": "Kasper Peulen",
   "license": "MIT",
   "type": "module",
   "exports": {
